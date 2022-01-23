@@ -39,6 +39,7 @@ import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.navigation.OpenPatternDetail
 import com.yoxjames.openstitch.pattern.PatternDetailLoader
 import com.yoxjames.openstitch.pattern.PatternRow
+import com.yoxjames.openstitch.ui.TopBarBackClick
 import com.yoxjames.openstitch.ui.core.BackPushed
 import dagger.Module
 import dagger.Provides
@@ -161,7 +162,8 @@ object MainModule {
             statefulListViewEvents.map { it.state }
                 .filterIsInstance<PatternRow>()
                 .map { OpenPatternDetail(it.pattern.id) },
-            screenViewEvents.filterIsInstance<BackPushed>().map { Back }
+            screenViewEvents.filterIsInstance<BackPushed>().map { Back },
+            screenViewEvents.filterIsInstance<TopBarBackClick>().map { Back }
         ).flowOn(Dispatchers.IO)
     }
 
@@ -172,6 +174,18 @@ object MainModule {
         return navigationTransitions.scan(NavigationState(emptyList())) { state, transition ->
             NavigationStateFunction(state, transition)
         }
+    }
+
+    @Provides @ActivityScoped
+    fun provideNavigationStateFlow(
+        coroutineScope: CoroutineScope,
+        navigationStates: Flow<@JvmSuppressWildcards NavigationState>
+    ): StateFlow<@JvmSuppressWildcards NavigationState> {
+        return navigationStates.stateIn(
+            coroutineScope,
+            SharingStarted.Eagerly,
+            NavigationState(emptyList())
+        )
     }
 
     @Provides @ActivityScoped
@@ -189,15 +203,15 @@ object MainModule {
     @Provides @ActivityScoped
     fun provideAppState(
         coroutineScope: CoroutineScope,
-        screenStates: Flow<@JvmSuppressWildcards NavigationScreenState>,
+        navigationState: StateFlow<@JvmSuppressWildcards NavigationState>,
         hotPatternFlowFactory: HotPatternFlowFactory,
         patternDetailLoader: PatternDetailLoader,
-        searchStates: Flow<@JvmSuppressWildcards SearchState>
+        searchStates: Flow<@JvmSuppressWildcards SearchState>,
     ): StateFlow<@JvmSuppressWildcards OpenStitchState> {
-        return screenStates.flatMapMerge { screenState ->
-            when (screenState) {
-                is PatternDetail -> patternDetailLoader.getFullPattern(screenState.patternId).map {
-                    DetailScreenState(contentState = it, loadingState = it.loadingState)
+        return navigationState.flatMapMerge { navigationState ->
+            when (val navigationScreen = navigationState.navigationState) {
+                is PatternDetail -> patternDetailLoader.getFullPattern(navigationScreen.patternId).map {
+                    DetailScreenState(contentState = it, loadingState = it.loadingState, navigationState = navigationState)
                 }
                 is PatternList -> hotPatternFlowFactory.flow.combine(searchStates) { first, second ->
                     Pair(first, second)
@@ -205,12 +219,13 @@ object MainModule {
                     ListScreenState(
                         listState = it.first.listState,
                         searchState = it.second,
-                        loadingState = it.first.loadingState
+                        loadingState = it.first.loadingState,
+                        navigationState = navigationState
                     )
                 }
                 None -> flowOf(LoadingScreenState)
             }
-        }.stateIn(coroutineScope, SharingStarted.Eagerly, LoadingScreenState)
+        }.stateIn(coroutineScope, SharingStarted.Lazily, LoadingScreenState)
     }
 
     @Provides @ActivityScoped

@@ -5,6 +5,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -20,12 +21,35 @@ sealed interface TopBarViewState : ViewState {
 
 data class DefaultTopBarViewState(
     private val isSearchAvailable: Boolean = false,
+    private val isBackAvailable: Boolean = false,
 ) : TopBarViewState {
     @Composable
     override fun Composable(viewEventListener: ViewEventListener<TopBarViewEvent>) {
+        val coroutineScope = rememberCoroutineScope()
         TopAppBar(
             title = { Text("OpenStitch") },
-            actions = { SearchAction(viewEventListener) }
+            actions = { SearchAction(viewEventListener) },
+            navigationIcon = when (isBackAvailable) {
+                true -> {
+                    {
+                        IconButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    viewEventListener.onEvent(
+                                        TopBarBackClick
+                                    )
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "Back",
+                            )
+                        }
+                    }
+                }
+                false -> null
+            }
         )
     }
 
@@ -61,6 +85,8 @@ data class SearchTopBarViewState(
 sealed interface TopBarViewEvent : TopBarScreenViewEvent
 
 object SearchClick : TopBarViewEvent
+
+object TopBarBackClick : TopBarViewEvent
 
 @JvmInline
 value class TopBarSearchViewEvent(

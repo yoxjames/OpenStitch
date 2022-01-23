@@ -60,7 +60,7 @@ data class SearchViewState(
                         IconButton(onClick = {
                             coroutineScope.launch {
                                 viewEventListener.onEvent(
-                                    BackClicked
+                                    SearchBackClick
                                 )
                             }
                         }) {
@@ -98,7 +98,7 @@ data class SearchViewState(
 
 sealed interface SearchViewEvent : ViewEvent
 
-object BackClicked : SearchViewEvent
+object SearchBackClick : SearchViewEvent
 
 data class SearchTextChanged(
     val text: String

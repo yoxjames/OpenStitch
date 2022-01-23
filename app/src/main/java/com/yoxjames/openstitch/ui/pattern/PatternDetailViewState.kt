@@ -1,10 +1,17 @@
 package com.yoxjames.openstitch.ui.pattern
 
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -14,11 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.skydoves.landscapist.glide.GlideImage
 import com.yoxjames.openstitch.core.ViewEventListener
-import com.yoxjames.openstitch.core.ViewState
 import com.yoxjames.openstitch.detail.ContentViewState
-import com.yoxjames.openstitch.ui.core.DetailScreenViewState
 import com.yoxjames.openstitch.ui.core.ScreenViewEvent
-import com.yoxjames.openstitch.ui.core.ScreenViewState
 
 data class PatternPhoto(
     val url: String,
@@ -26,30 +30,34 @@ data class PatternPhoto(
 )
 
 data class PatternDetailViewState(
-    val patternName: String,
-    val patternAuthor: String,
-    val patternGallery: List<PatternPhoto>,
+    val name: String,
+    val author: String,
+    val gallery: List<PatternPhoto>,
+    val description: String,
     val gauge: String,
     val yardage: String,
     val weight: String
 ): ContentViewState {
     @Composable
     override fun Composable(viewEventListener: ViewEventListener<ScreenViewEvent>) {
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
+                .verticalScroll(state = scrollState)
         ) {
             GlideImage(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(400.dp), // Make Percentage
-                imageModel = patternGallery.map { it.url }.firstOrNull()
+                    .height(300.dp), // Make Percentage
+                imageModel = gallery.map { it.url }.firstOrNull()
             )
             Surface(modifier = Modifier.padding(8.dp)) {
                 Column {
-                    Text(text = patternName, style = MaterialTheme.typography.h4)
-                    Text(text = patternAuthor, style = MaterialTheme.typography.h5)
+                    Text(text = name, style = MaterialTheme.typography.h4)
+                    Text(text = author, style = MaterialTheme.typography.h5)
+                    Text(description)
                 }
             }
         }
@@ -59,9 +67,10 @@ data class PatternDetailViewState(
 @Preview
 @Composable
 fun TestPattern() = PatternDetailViewState(
-    patternName = "Pattern Name",
-    patternAuthor = "Author",
-    patternGallery = listOf(),
+    name = "Pattern Name",
+    author = "Author",
+    description = "Description",
+    gallery = listOf(),
     gauge = "US 5 -3.75 mm",
     yardage = "190 - 250 yards",
     weight = "Sport"

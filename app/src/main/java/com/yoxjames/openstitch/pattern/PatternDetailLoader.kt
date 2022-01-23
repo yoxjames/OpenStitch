@@ -20,6 +20,7 @@ class PatternDetailLoader @Inject constructor(
             LoadedPatternDetailState(
                 name = fullPattern.name,
                 author = fullPattern.patternAuthor.name,
+                description = fullPattern.notes ?: "",
                 images = fullPattern.patternPhotos.map { it.medium2Url },
                 gauge = fullPattern.gauge?.toString() ?: "UNKNOWN",
                 yardage = "TEST",
@@ -41,6 +42,7 @@ object LoadingPatternState : PatternDetailState {
 data class LoadedPatternDetailState(
     val name: String,
     val author: String,
+    val description: String,
     val images: List<String>,
     val gauge: String,
     val yardage: String,
@@ -48,9 +50,10 @@ data class LoadedPatternDetailState(
 ) : PatternDetailState {
     override val loadingState: LoadingState = LoadingState.COMPLETE
     override val viewState: ContentViewState = PatternDetailViewState(
-        patternName = name,
-        patternAuthor = author,
-        patternGallery = images.map { PatternPhoto(it, "Caption") },
+        name = name,
+        author = author,
+        description = description,
+        gallery = images.map { PatternPhoto(it, "Caption") },
         gauge = gauge,
         yardage = yardage,
         weight = weight

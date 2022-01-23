@@ -13,6 +13,7 @@ import com.yoxjames.openstitch.ui.core.ScreenViewState
 import com.yoxjames.openstitch.core.ViewEventFlowAdapter
 import com.yoxjames.openstitch.list.PositionalListViewEvent
 import com.yoxjames.openstitch.list.StatefulListViewEvent
+import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.ui.core.BackPushed
 import com.yoxjames.openstitch.ui.core.LoadingViewState
 import com.yoxjames.openstitch.ui.theme.OpenStitchTheme
@@ -33,9 +34,14 @@ class OpenStitchActivity : ComponentActivity() {
     @Inject lateinit var screenViewStates: Flow<@JvmSuppressWildcards ScreenViewState>
     @Inject lateinit var connectableFlowHolder: ConnectableFlowHolder<@JvmSuppressWildcards StatefulListViewEvent>
     @Inject lateinit var appState: StateFlow<@JvmSuppressWildcards OpenStitchState>
+    @Inject lateinit var navigationState: StateFlow<@JvmSuppressWildcards NavigationState>
 
     override fun onBackPressed() {
-        lifecycleScope.launch { viewEventFlowAdapter.onEvent(BackPushed) }
+        if (navigationState.value.isBackAvailable) {
+            lifecycleScope.launch { viewEventFlowAdapter.onEvent(BackPushed) }
+        } else {
+            super.onBackPressed()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,12 +49,7 @@ class OpenStitchActivity : ComponentActivity() {
         if (!authenticationManager.isAuthenticated) {
             authenticationManager.authenticateRavelry()
         } else {
-            setContent {
-                OpenStitchTheme {
-                    val viewState = screenViewStates.collectAsState(initial = LoadingViewState)
-                    viewState.value.Composable(viewEventFlowAdapter)
-                }
-            }
+            attachUi()
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
@@ -66,8 +67,18 @@ class OpenStitchActivity : ComponentActivity() {
         }
     }
 
+    private fun attachUi() {
+        setContent {
+            OpenStitchTheme {
+                val viewState = screenViewStates.collectAsState(initial = LoadingViewState)
+                viewState.value.Composable(viewEventFlowAdapter)
+            }
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         authenticationManager.onActivityResult(requestCode, data)
+        attachUi()
         super.onActivityResult(requestCode, resultCode, data)
     }
 }

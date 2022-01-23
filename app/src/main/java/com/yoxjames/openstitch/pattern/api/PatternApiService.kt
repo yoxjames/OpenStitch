@@ -36,6 +36,8 @@ data class RavelryFullPattern(
     @SerialName("pattern_author") val patternAuthor: RavelryPatternAuthor,
     @SerialName("photos") val patternPhotos: List<RavelryPhoto>,
     @SerialName("gauge") val gauge: Double?,
+    @SerialName("gauge_description") val guageDescription: String?,
+    @SerialName("notes") val notes: String?
     // TODO: More stuff....
 )
 

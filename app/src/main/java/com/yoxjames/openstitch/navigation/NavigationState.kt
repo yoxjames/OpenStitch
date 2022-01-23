@@ -17,4 +17,5 @@ value class NavigationState(
     val navigationState get() = navigationStack.lastOrNull() ?: None
     fun push(navigationScreenState: NavigationScreenState) = NavigationState(navigationStack + navigationScreenState)
     fun pop() = NavigationState(navigationStack.dropLast(1))
+    val isBackAvailable: Boolean get() = navigationStack.size > 1
 }
