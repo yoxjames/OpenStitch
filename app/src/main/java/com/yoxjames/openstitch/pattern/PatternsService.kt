@@ -1,6 +1,7 @@
 package com.yoxjames.openstitch.pattern
 
 import com.yoxjames.openstitch.pattern.api.PatternApiService
+import com.yoxjames.openstitch.pattern.api.RavelryListPattern
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -29,9 +30,21 @@ sealed interface PatternFlowTransition
 object LoadingPatterns : PatternFlowTransition
 
 data class HotPatternsLoaded(
-    val patterns: List<Pattern>
+    val listPatterns: List<ListPattern>
 ) : PatternFlowTransition
 
 data class PatternSearchLoaded(
-    val patterns: List<Pattern>
+    val listPatterns: List<ListPattern>
 ) : PatternFlowTransition
+
+object RavelryPatternMapper : (RavelryListPattern) -> ListPattern {
+    override fun invoke(ravelryPattern: RavelryListPattern): ListPattern {
+        return ListPattern(
+            id = ravelryPattern.id,
+            name = ravelryPattern.name,
+            author = ravelryPattern.patternAuthor.name,
+            thumbnail = ravelryPattern.firstPhoto?.smallUrl ?: "",
+            isFree = ravelryPattern.free
+        )
+    }
+}

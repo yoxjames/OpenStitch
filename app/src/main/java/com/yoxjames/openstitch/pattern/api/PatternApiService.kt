@@ -17,7 +17,7 @@ interface PatternApiService {
     ): SearchResponseWrapper
 
     @GET("patterns/{id}.json")
-    suspend fun getFullPattern(@Path("id") id: String): FullPatternWrapper
+    suspend fun getFullPattern(@Path("id") id: Long): FullPatternWrapper
 }
 
 @Serializable
@@ -32,12 +32,16 @@ data class FullPatternWrapper(
 
 @Serializable
 data class RavelryFullPattern(
+    @SerialName("id") val id: Long,
     @SerialName("name") val name: String,
     @SerialName("pattern_author") val patternAuthor: RavelryPatternAuthor,
     @SerialName("photos") val patternPhotos: List<RavelryPhoto>,
     @SerialName("gauge") val gauge: Double?,
     @SerialName("gauge_description") val guageDescription: String?,
-    @SerialName("notes") val notes: String?
+    @SerialName("notes") val notes: String?,
+    @SerialName("price") val price: Double?,
+    @SerialName("currency") val currency: String?,
+    @SerialName("free") val free: Boolean
     // TODO: More stuff....
 )
 
@@ -46,7 +50,7 @@ data class RavelryListPattern(
     @SerialName("designer") val designer: RavelryPatternAuthor,
     @SerialName("first_photo") val firstPhoto: RavelryPhoto?,
     @SerialName("free") val free: Boolean,
-    @SerialName("id") val id: Int,
+    @SerialName("id") val id: Long,
     @SerialName("name") val name: String,
     @SerialName("pattern_author") val patternAuthor: RavelryPatternAuthor,
     @SerialName("permalink") val permalink: String,
@@ -57,7 +61,7 @@ data class RavelryListPattern(
 data class RavelryPatternAuthor(
     @SerialName("crochet_pattern_count") val crochetPatternCount: Int,
     @SerialName("favorites_count") val favoritesCount: Int,
-    @SerialName("id") val id: Int,
+    @SerialName("id") val id: Long,
     @SerialName("knitting_pattern_count") val knittingPatternCount: Int,
     @SerialName("name") val name: String,
     @SerialName("patterns_count") val patternsCount: Int,
@@ -67,7 +71,8 @@ data class RavelryPatternAuthor(
 
 @Serializable
 data class RavelryPhoto(
-    @SerialName("id") val id: Int,
+    @SerialName("id") val id: Long,
+    @SerialName("caption") val caption: String?,
     @SerialName("medium2_url") val medium2Url: String,
     @SerialName("medium_url") val mediumUrl: String,
     @SerialName("small2_url") val small2Url: String,

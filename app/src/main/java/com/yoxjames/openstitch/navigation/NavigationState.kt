@@ -7,7 +7,7 @@ object None : NavigationScreenState
 object PatternList : NavigationScreenState
 
 data class PatternDetail(
-    val patternId: Int,
+    val patternId: Long,
 ) : NavigationScreenState
 
 @JvmInline

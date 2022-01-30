@@ -32,11 +32,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 data class SearchViewState(
-    val hint: String
+    val hint: String,
+    val text: String,
 ): ViewState {
     @Composable
     fun Composable(viewEventListener: ViewEventListener<SearchViewEvent>) {
-        var text by remember { mutableStateOf("") }
+        var text by remember { mutableStateOf(text) }
         val coroutineScope = rememberCoroutineScope()
         var currentJob by remember { mutableStateOf<Job?>(null) }
         val focusRequester = remember { FocusRequester() }
@@ -82,7 +83,7 @@ data class SearchViewState(
                         }
                         currentJob?.cancel()
                         currentJob = coroutineScope.launch {
-                            delay(200)
+                            delay(500)
                             viewEventListener.onEvent(SearchEntered)
                         }
                     }
@@ -109,5 +110,5 @@ object SearchEntered : SearchViewEvent
 @Preview
 @Composable
 fun SimpleSearchBar() {
-    SearchViewState("Search Patterns").Composable { }
+    SearchViewState("Search Patterns", "").Composable { }
 }

@@ -12,7 +12,7 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import com.yoxjames.openstitch.BuildConfig
 import com.yoxjames.openstitch.DetailScreenState
 import com.yoxjames.openstitch.ListScreenState
-import com.yoxjames.openstitch.pattern.HotPatternFlowFactory
+import com.yoxjames.openstitch.pattern.PatternsFlowFactory
 import com.yoxjames.openstitch.LoadingScreenState
 import com.yoxjames.openstitch.OpenStitchState
 import com.yoxjames.openstitch.core.ConnectableFlowHolder
@@ -37,7 +37,7 @@ import com.yoxjames.openstitch.navigation.Back
 import com.yoxjames.openstitch.navigation.NavigationScreenState
 import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.navigation.OpenPatternDetail
-import com.yoxjames.openstitch.pattern.PatternDetailLoader
+import com.yoxjames.openstitch.pattern.PatternFlowFactory
 import com.yoxjames.openstitch.pattern.PatternRow
 import com.yoxjames.openstitch.ui.TopBarBackClick
 import com.yoxjames.openstitch.ui.core.BackPushed
@@ -46,6 +46,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ActivityContext
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,26 +57,30 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import net.openid.appauth.AuthorizationService
 import net.openid.appauth.AuthorizationServiceConfiguration
 import net.openid.appauth.ClientAuthentication
 import net.openid.appauth.ClientSecretBasic
+import okhttp3.Cache
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import java.io.File
 
-@ExperimentalCoroutinesApi
 @FlowPreview
 @Module
 @InstallIn(ActivityComponent::class)
@@ -109,9 +114,19 @@ object MainModule {
     }
 
     @Provides @ActivityScoped
-    fun provideOkHttpWithAuthenticator(openStitchAuthenticator: OpenStitchAuthenticator): OkHttpClient {
+    fun provideOkHttpWithAuthenticator(
+        openStitchAuthenticator: OpenStitchAuthenticator,
+        @ApplicationContext context: Context
+    ): OkHttpClient {
         return OkHttpClient.Builder()
             .authenticator(openStitchAuthenticator)
+            // TODO: I suspect this isn't actually working right... Need to dig in....
+            .cache(
+                Cache(
+                    directory = File(context.cacheDir, "okhttp_cache"),
+                    maxSize = 50L * 1024L * 1024L // 50 MiB
+                )
+            )
             .build()
     }
 
@@ -142,15 +157,19 @@ object MainModule {
     }
 
     @Provides @ActivityScoped
-    fun provideSearchStateFlow(viewEvents: Flow<@JvmSuppressWildcards ScreenViewEvent>): Flow<@JvmSuppressWildcards SearchState> = viewEvents
+    fun provideSearchStateFlow(
+        viewEvents: Flow<@JvmSuppressWildcards ScreenViewEvent>,
+        coroutineScope: CoroutineScope,
+    ): Flow<@JvmSuppressWildcards SearchState> = viewEvents
         .filterIsInstance<TopBarViewEvent>()
-        .flatMapConcat { TopBarViewSearchViewEventTransitionMapper(it).asFlow() }
+        .onEach { println("topBarViewEvent $it") }
+        .transform { emitAll(TopBarViewSearchViewEventTransitionMapper(it).asFlow()) }
         .scan<SearchTransition, SearchState>(
             initial = InactiveSearchState(searchConfiguration = SearchConfiguration("Search Patterns"))
         ) { state, transition ->
             SearchScanFunction(state, transition)
-        }
-
+        }.onEach { println("searchState $it") }
+        .shareIn(coroutineScope, SharingStarted.Lazily, replay = 1)
 
     @Provides @ActivityScoped
     fun provideNavigationTransitions(
@@ -161,7 +180,7 @@ object MainModule {
             flowOf(OpenPatterns),
             statefulListViewEvents.map { it.state }
                 .filterIsInstance<PatternRow>()
-                .map { OpenPatternDetail(it.pattern.id) },
+                .map { OpenPatternDetail(it.listPattern.id) },
             screenViewEvents.filterIsInstance<BackPushed>().map { Back },
             screenViewEvents.filterIsInstance<TopBarBackClick>().map { Back }
         ).flowOn(Dispatchers.IO)
@@ -204,26 +223,31 @@ object MainModule {
     fun provideAppState(
         coroutineScope: CoroutineScope,
         navigationState: StateFlow<@JvmSuppressWildcards NavigationState>,
-        hotPatternFlowFactory: HotPatternFlowFactory,
-        patternDetailLoader: PatternDetailLoader,
+        patternsFlowFactory: PatternsFlowFactory,
+        patternFlowFactory: PatternFlowFactory,
         searchStates: Flow<@JvmSuppressWildcards SearchState>,
     ): StateFlow<@JvmSuppressWildcards OpenStitchState> {
-        return navigationState.flatMapMerge { navigationState ->
+        // Must be transformLatest or flatMapMerge. A new navigation state cancels the suspending call to emit on searchStates
+        return navigationState.transformLatest { navigationState ->
             when (val navigationScreen = navigationState.navigationState) {
-                is PatternDetail -> patternDetailLoader.getFullPattern(navigationScreen.patternId).map {
-                    DetailScreenState(contentState = it, loadingState = it.loadingState, navigationState = navigationState)
-                }
-                is PatternList -> hotPatternFlowFactory.flow.combine(searchStates) { first, second ->
-                    Pair(first, second)
-                }.map {
-                    ListScreenState(
-                        listState = it.first.listState,
-                        searchState = it.second,
-                        loadingState = it.first.loadingState,
-                        navigationState = navigationState
-                    )
-                }
-                None -> flowOf(LoadingScreenState)
+                is PatternDetail -> emitAll(
+                    patternFlowFactory.getFullPattern(navigationScreen.patternId).map {
+                        DetailScreenState(contentState = it, loadingState = it.loadingState, navigationState = navigationState)
+                    }
+                )
+                is PatternList -> emitAll(
+                    patternsFlowFactory.flow.combine(searchStates) { first, second ->
+                        Pair(first, second)
+                    }.map {
+                        ListScreenState(
+                            listState = it.first.listState,
+                            searchState = it.second,
+                            loadingState = it.first.loadingState,
+                            navigationState = navigationState
+                        )
+                    }
+                )
+                None -> emit(LoadingScreenState)
             }
         }.stateIn(coroutineScope, SharingStarted.Lazily, LoadingScreenState)
     }

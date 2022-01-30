@@ -7,5 +7,5 @@ object OpenPatterns : NavigationTransition
 object Back : NavigationTransition
 
 data class OpenPatternDetail(
-    val patternId: Int
+    val patternId: Long
 ) : NavigationTransition
