@@ -162,14 +162,12 @@ object MainModule {
         coroutineScope: CoroutineScope,
     ): Flow<@JvmSuppressWildcards SearchState> = viewEvents
         .filterIsInstance<TopBarViewEvent>()
-        .onEach { println("topBarViewEvent $it") }
         .transform { emitAll(TopBarViewSearchViewEventTransitionMapper(it).asFlow()) }
         .scan<SearchTransition, SearchState>(
             initial = InactiveSearchState(searchConfiguration = SearchConfiguration("Search Patterns"))
         ) { state, transition ->
             SearchScanFunction(state, transition)
-        }.onEach { println("searchState $it") }
-        .shareIn(coroutineScope, SharingStarted.Lazily, replay = 1)
+        }.shareIn(coroutineScope, SharingStarted.Lazily, replay = 1)
 
     @Provides @ActivityScoped
     fun provideNavigationTransitions(

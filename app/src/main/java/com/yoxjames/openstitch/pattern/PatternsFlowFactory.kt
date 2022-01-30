@@ -30,14 +30,18 @@ class PatternsFlowFactory @Inject constructor(
     private val searchState: Flow<@JvmSuppressWildcards SearchState>,
 ) {
     val flow: Flow<PatternsState> = searchState.distinctUntilChangedBy { it is ActiveSearchState }
-        .filter { (it is EnteredSearchState && it.searchText.isNotBlank()) || it is InactiveSearchState }
+        .filter { it is EnteredSearchState || it is InactiveSearchState }
         .transform {
                 when (it) {
                     is InactiveSearchState, is FocusedSearchState, is TypingSearchState -> {
                         emitAll(patternsService.loadHotPatterns())
                     }
                     is EnteredSearchState -> {
-                        emitAll(patternsService.searchPatterns(it.searchText))
+                        if (it.searchText.isBlank()) {
+                            emitAll(patternsService.loadHotPatterns())
+                        } else {
+                            emitAll(patternsService.searchPatterns(it.searchText))
+                        }
                     }
                 }
             }

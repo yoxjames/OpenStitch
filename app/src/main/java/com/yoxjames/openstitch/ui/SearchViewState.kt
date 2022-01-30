@@ -41,6 +41,19 @@ data class SearchViewState(
         val coroutineScope = rememberCoroutineScope()
         var currentJob by remember { mutableStateOf<Job?>(null) }
         val focusRequester = remember { FocusRequester() }
+
+        fun onValueChange(value: String) {
+            if (!value.contains("\n")) text = value
+            coroutineScope.launch {
+                viewEventListener.onEvent(SearchTextChanged(value))
+            }
+            currentJob?.cancel()
+            currentJob = coroutineScope.launch {
+                delay(500)
+                viewEventListener.onEvent(SearchEntered)
+            }
+        }
+
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colors.background,
@@ -69,24 +82,14 @@ data class SearchViewState(
                         }
                     },
                     trailingIcon = {
-                        IconButton(onClick = { text = "" }) {
+                        IconButton(onClick = { text = ""; onValueChange("") }) {
                             Icon(
                                 imageVector = Icons.Default.Clear,
                                 contentDescription = "Search"
                             )
                         }
                     },
-                    onValueChange = {
-                        if (!it.contains("\n")) text = it
-                        coroutineScope.launch {
-                            viewEventListener.onEvent(SearchTextChanged(it))
-                        }
-                        currentJob?.cancel()
-                        currentJob = coroutineScope.launch {
-                            delay(500)
-                            viewEventListener.onEvent(SearchEntered)
-                        }
-                    }
+                    onValueChange = ::onValueChange
                 )
             }
         }
@@ -95,6 +98,7 @@ data class SearchViewState(
             onDispose {  }
         }
     }
+
 }
 
 sealed interface SearchViewEvent : ViewEvent

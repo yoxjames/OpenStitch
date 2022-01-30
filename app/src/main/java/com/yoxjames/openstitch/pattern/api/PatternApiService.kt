@@ -38,11 +38,12 @@ data class RavelryFullPattern(
     @SerialName("photos") val patternPhotos: List<RavelryPhoto>,
     @SerialName("gauge") val gauge: Double?,
     @SerialName("gauge_description") val guageDescription: String?,
-    @SerialName("notes") val notes: String?,
+    @SerialName("notes_html") val notes: String?,
     @SerialName("price") val price: Double?,
     @SerialName("currency") val currency: String?,
-    @SerialName("free") val free: Boolean
-    // TODO: More stuff....
+    @SerialName("free") val free: Boolean,
+    @SerialName("yarn_weight") val yarnWeight: RavelryYarnWeight,
+    @SerialName("pattern_needle_sizes") val patternNeedleSizes: List<RavelryPatternNeedleSize>
 )
 
 @Serializable
@@ -79,4 +80,19 @@ data class RavelryPhoto(
     @SerialName("small_url") val smallUrl: String,
     @SerialName("square_url") val squareUrl: String,
     @SerialName("thumbnail_url") val thumbnailUrl: String
+)
+
+@Serializable
+data class RavelryYarnWeight(
+    @SerialName("name") val name: String?
+)
+
+@Serializable
+data class RavelryPatternNeedleSize(
+    @SerialName("id") val id: Long,
+    @SerialName("crochet") val crochet: Boolean,
+    @SerialName("knitting") val knitting: Boolean,
+    @SerialName("name") val name: String,
+    @SerialName("us") val us: String,
+    @SerialName("pretty_metric") val prettyMetric: String
 )
