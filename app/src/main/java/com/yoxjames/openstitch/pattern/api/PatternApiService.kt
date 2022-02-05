@@ -43,7 +43,8 @@ data class RavelryFullPattern(
     @SerialName("currency") val currency: String?,
     @SerialName("free") val free: Boolean,
     @SerialName("yarn_weight") val yarnWeight: RavelryYarnWeight,
-    @SerialName("pattern_needle_sizes") val patternNeedleSizes: List<RavelryPatternNeedleSize>
+    @SerialName("pattern_needle_sizes") val patternNeedleSizes: List<RavelryPatternNeedleSize>,
+    @SerialName("craft") val craft: RavelryCraft
 )
 
 @Serializable
@@ -66,7 +67,7 @@ data class RavelryPatternAuthor(
     @SerialName("knitting_pattern_count") val knittingPatternCount: Int,
     @SerialName("name") val name: String,
     @SerialName("patterns_count") val patternsCount: Int,
-    @SerialName("permalink") val permalink: String,
+    @SerialName("permalink") val permalink: String?,
     //@SerialName("users") val users: List<>
 )
 
@@ -74,12 +75,12 @@ data class RavelryPatternAuthor(
 data class RavelryPhoto(
     @SerialName("id") val id: Long,
     @SerialName("caption") val caption: String?,
-    @SerialName("medium2_url") val medium2Url: String,
-    @SerialName("medium_url") val mediumUrl: String,
-    @SerialName("small2_url") val small2Url: String,
-    @SerialName("small_url") val smallUrl: String,
-    @SerialName("square_url") val squareUrl: String,
-    @SerialName("thumbnail_url") val thumbnailUrl: String
+    @SerialName("medium2_url") val medium2Url: String?,
+    @SerialName("medium_url") val mediumUrl: String?,
+    @SerialName("small2_url") val small2Url: String?,
+    @SerialName("small_url") val smallUrl: String?,
+    @SerialName("square_url") val squareUrl: String?,
+    @SerialName("thumbnail_url") val thumbnailUrl: String?
 )
 
 @Serializable
@@ -92,7 +93,13 @@ data class RavelryPatternNeedleSize(
     @SerialName("id") val id: Long,
     @SerialName("crochet") val crochet: Boolean,
     @SerialName("knitting") val knitting: Boolean,
+    @SerialName("name") val name: String?,
+    @SerialName("us") val us: String?,
+    @SerialName("pretty_metric") val prettyMetric: String?
+)
+
+@Serializable
+data class RavelryCraft(
+    @SerialName("id") val id: Long,
     @SerialName("name") val name: String,
-    @SerialName("us") val us: String,
-    @SerialName("pretty_metric") val prettyMetric: String
 )

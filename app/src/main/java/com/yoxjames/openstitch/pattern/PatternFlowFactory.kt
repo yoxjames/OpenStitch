@@ -1,23 +1,21 @@
 package com.yoxjames.openstitch.pattern
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import com.yoxjames.openstitch.R
 import com.yoxjames.openstitch.detail.ContentState
 import com.yoxjames.openstitch.detail.ContentViewState
 import com.yoxjames.openstitch.detail.EmptyContentViewState
 import com.yoxjames.openstitch.loading.LoadingState
-import com.yoxjames.openstitch.pattern.api.PatternApiService
 import com.yoxjames.openstitch.ui.generic.QuickInfoCardViewState
 import com.yoxjames.openstitch.ui.generic.QuickInfoComposableVectorIcon
 import com.yoxjames.openstitch.ui.generic.QuickInfoDrawableIcon
 import com.yoxjames.openstitch.ui.pattern.PatternDetailViewState
 import com.yoxjames.openstitch.ui.pattern.PatternPhoto
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.scan
 import java.text.NumberFormat
 import java.util.Currency
-import java.util.Locale
 import javax.inject.Inject
 
 class PatternFlowFactory @Inject constructor(
@@ -44,25 +42,49 @@ object LoadingPatternState : PatternDetailState {
 data class LoadedPatternDetailState(
     val pattern: FullPattern
 ) : PatternDetailState {
+    companion object {
+        val freeCard = QuickInfoCardViewState(
+            icon = QuickInfoComposableVectorIcon(Icons.Default.ShoppingCart),
+            firstLine = "Free",
+            secondLine = ""
+        )
+    }
     override val loadingState: LoadingState = LoadingState.COMPLETE
-    override val viewState: ContentViewState get() {
-        // TODO: I imagine there is a less disgusting way to do this.
-        println("ID: ${pattern.id}")
-        return PatternDetailViewState(
+    override val viewState by lazy {
+        PatternDetailViewState(
             name = pattern.name,
             author = pattern.author,
             description = pattern.description,
             gallery = pattern.images.map { PatternPhoto(it.imageUrl, it.caption) },
-            quickInfoCards = listOf(priceCard, sizeCard, needleSizeCard)
+            quickInfoCards = quickInfoCards
         )
     }
 
+    private val quickInfoCards: List<QuickInfoCardViewState> get() = sequence {
+
+        when (pattern.price) {
+            Free -> yield(freeCard)
+            is MonetaryPrice -> yield(priceCard)
+            None -> Unit
+        }
+        yield(needleSizeCard)
+        yield(sizeCard)
+        yield(idCard)
+    }.toList()
 
     private val isKnitting = pattern.craftType == CraftType.KNITTING
+    private val usSizeLine = when (pattern.usNeedleSize.isBlank()) {
+        true -> "No Size"
+        false -> "US ${pattern.usNeedleSize}"
+    }
+    private val metricLine = when(pattern.metricNeedleSize.isBlank()) {
+        true -> ""
+        false -> "${pattern.metricNeedleSize} mm"
+    }
     private val needleSizeCard = QuickInfoCardViewState(
         icon = QuickInfoDrawableIcon(if(isKnitting) R.drawable.knitting_needles else R.drawable.crochet_hook),
-        firstLine = "US ${pattern.usNeedleSize}",
-        secondLine = "${pattern.metricNeedleSize} mm"
+        firstLine = usSizeLine,
+        secondLine = metricLine
     )
 
     private val sizeCard = QuickInfoCardViewState(
@@ -70,12 +92,21 @@ data class LoadedPatternDetailState(
         firstLine = pattern.weight,
         secondLine = ""
     )
-    private val formattedPrice = NumberFormat.getCurrencyInstance().format(pattern.price).drop(1)
-    private val currencySymbol = Currency.getInstance(pattern.currency.ifBlank { "USD" }).symbol
-    private val prettyPrice = if (pattern.isFree) "FREE" else "$currencySymbol$formattedPrice"
-    private val priceCard = QuickInfoCardViewState(
-        icon = QuickInfoComposableVectorIcon(Icons.Default.ShoppingCart),
-        firstLine = prettyPrice,
-        secondLine = if (!pattern.isFree) pattern.currency else ""
+
+    private val priceCard: QuickInfoCardViewState get() {
+        val formattedPrice = NumberFormat.getCurrencyInstance().format((pattern.price as MonetaryPrice).price).drop(1)
+        val currencySymbol = Currency.getInstance(pattern.currency.ifBlank { "USD" }).symbol
+        val prettyPrice = "$currencySymbol$formattedPrice"
+        return QuickInfoCardViewState(
+            icon = QuickInfoComposableVectorIcon(Icons.Default.ShoppingCart),
+            firstLine = prettyPrice,
+            secondLine = pattern.currency
+        )
+    }
+
+    private val idCard = QuickInfoCardViewState(
+        icon = QuickInfoComposableVectorIcon(Icons.Default.Settings),
+        firstLine = pattern.id.toString(),
+        secondLine = ""
     )
 }

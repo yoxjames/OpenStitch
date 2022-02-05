@@ -1,11 +1,9 @@
 package com.yoxjames.openstitch.list
 
-import com.yoxjames.openstitch.core.State
-
 @JvmInline
 value class ListState(
     val items: List<ListItemState>
-) : State {
+) {
     fun asViewState(config: ListViewConfiguration = ListViewConfiguration()): ListViewState {
         return ListViewState(
             listLayout = config.layout,
@@ -14,7 +12,7 @@ value class ListState(
     }
 }
 
-interface ListItemState : State {
+interface ListItemState {
     val viewState: ListItemViewState
 }
 

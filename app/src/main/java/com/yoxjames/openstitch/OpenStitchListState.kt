@@ -2,7 +2,6 @@ package com.yoxjames.openstitch
 
 import com.yoxjames.openstitch.ui.core.LoadingViewState
 import com.yoxjames.openstitch.ui.core.ScreenViewState
-import com.yoxjames.openstitch.core.State
 import com.yoxjames.openstitch.detail.ContentState
 import com.yoxjames.openstitch.list.ListState
 import com.yoxjames.openstitch.loading.LoadingState
@@ -16,7 +15,7 @@ import com.yoxjames.openstitch.ui.SearchViewState
 import com.yoxjames.openstitch.ui.core.DetailScreenViewState
 import com.yoxjames.openstitch.ui.core.ListScreenViewState
 
-sealed interface OpenStitchState : State {
+sealed interface OpenStitchState {
     val viewState: ScreenViewState
 }
 

@@ -5,6 +5,7 @@ import com.yoxjames.openstitch.pattern.api.RavelryListPattern
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import java.time.Instant
 import javax.inject.Inject
 
 class PatternsService @Inject constructor(
@@ -30,7 +31,7 @@ sealed interface PatternFlowTransition
 object LoadingPatterns : PatternFlowTransition
 
 data class HotPatternsLoaded(
-    val listPatterns: List<ListPattern>
+    val listPatterns: List<ListPattern>,
 ) : PatternFlowTransition
 
 data class PatternSearchLoaded(

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.lifecycleScope
 import com.yoxjames.openstitch.core.ConnectableFlowHolder
@@ -16,6 +17,8 @@ import com.yoxjames.openstitch.list.StatefulListViewEvent
 import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.ui.core.BackPushed
 import com.yoxjames.openstitch.ui.core.LoadingViewState
+import com.yoxjames.openstitch.ui.core.ScreenStates
+import com.yoxjames.openstitch.ui.core.ViewScreen
 import com.yoxjames.openstitch.ui.theme.OpenStitchTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +47,11 @@ class OpenStitchActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch { viewEventFlowAdapter.onEvent(ViewScreen) }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (!authenticationManager.isAuthenticated) {
@@ -70,8 +78,9 @@ class OpenStitchActivity : ComponentActivity() {
     private fun attachUi() {
         setContent {
             OpenStitchTheme {
+                val patternListState = rememberLazyListState()
                 val viewState = screenViewStates.collectAsState(initial = LoadingViewState)
-                viewState.value.Composable(viewEventFlowAdapter)
+                viewState.value.Composable(ScreenStates(patternListState), viewEventFlowAdapter)
             }
         }
     }

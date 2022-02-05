@@ -5,10 +5,16 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.emitAll
 
+/**
+ * This indicates a type of class that is designed to be rendered
+ * as a View. Essentially a state that closely resembles what a user could see
+ * and often would be implemented with a @Composable function.
+ */
 interface ViewState
 
-interface State
-
+/**
+ * A event that originates from the View.
+ */
 interface ViewEvent
 
 fun interface ViewEventListener <VE : ViewEvent> {
@@ -32,6 +38,3 @@ class ConnectableFlowHolder<T> {
         sharedFlow.emitAll(flow)
     }
 }
-
-
-

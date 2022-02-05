@@ -1,6 +1,7 @@
 package com.yoxjames.openstitch.pattern
 
 import com.yoxjames.openstitch.pattern.api.PatternApiService
+import com.yoxjames.openstitch.pattern.api.RavelryCraft
 import com.yoxjames.openstitch.pattern.api.RavelryFullPattern
 import com.yoxjames.openstitch.pattern.api.RavelryPatternNeedleSize
 import kotlinx.coroutines.flow.flow
@@ -21,22 +22,27 @@ class PatternService @Inject constructor(
         name = name,
         author = patternAuthor.name,
         description = notes ?: "",
-        isFree = free,
-        price = price?.toBigDecimal() ?: BigDecimal(0.0),
+        price = when {
+            free -> Free
+            price == null -> None
+            else -> MonetaryPrice(price.toBigDecimal())
+        },
         currency = currency ?: "",
-        images = patternPhotos.map { Image(imageUrl = it.medium2Url, caption = it.caption ?: "") },
+        images = patternPhotos.mapNotNull {
+            it.medium2Url?.let { image -> Image(imageUrl = image, caption = it.caption ?: "") }
+        },
         gauge = gauge.toString(),
         yardage = "",
         weight = yarnWeight.name ?: "",
-        craftType = patternNeedleSizes.craftType,
+        craftType = craft.craftType,
         usNeedleSize = patternNeedleSizes.firstOrNull()?.us ?: "",
         metricNeedleSize = patternNeedleSizes.firstOrNull()?.prettyMetric ?: ""
     )
 
-    private val List<RavelryPatternNeedleSize>.craftType get() = when(firstOrNull()?.knitting) {
-        true -> CraftType.KNITTING
-        false -> CraftType.CROCHET
-        null -> CraftType.UNKNOWN
+    private val RavelryCraft.craftType get() = when(name) {
+        "Knitting" -> CraftType.KNITTING
+        "Crochet" -> CraftType.CROCHET
+        else -> CraftType.UNKNOWN
     }
 }
 
