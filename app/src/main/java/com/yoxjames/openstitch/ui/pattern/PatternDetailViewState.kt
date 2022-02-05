@@ -17,12 +17,14 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.contentColorFor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,12 +70,13 @@ data class PatternDetailViewState(
         ) {
             val pagerState = rememberPagerState()
             HorizontalPager(count = imageCount, state = pagerState) { page ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Card(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     GlideImage(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp), // Make Percentage
-                        imageModel = gallery.map { it.url }[page]
+                        modifier = Modifier.height(300.dp), // Make Percentage
+                        imageModel = gallery.map { it.url }[page],
+                        contentScale = ContentScale.FillHeight
                     )
                 }
             }
