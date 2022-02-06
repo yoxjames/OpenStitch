@@ -22,6 +22,7 @@ android {
         }
         buildConfigField("String", "CLIENT_SECRET", CLIENT_SECRET)
         buildConfigField("String", "CLIENT_KEY", CLIENT_KEY)
+        buildConfigField("String", "CLIENT_REDIRECT_URL", CLIENT_REDIRECT_URL)
     }
 
     buildTypes {
