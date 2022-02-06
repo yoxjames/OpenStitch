@@ -23,7 +23,6 @@ class AuthenticationManager @Inject constructor(
     private val clientAuthentication: ClientAuthentication,
 ) {
     companion object {
-        private const val REDIRECT_URL = "openstitch://oauth-callback/ravelry"
         private const val PATTERN_STORE_READ = "patternstore-read"
         private const val OFFLINE = "offline"
         private const val RC_AUTH = 42069
@@ -36,7 +35,7 @@ class AuthenticationManager @Inject constructor(
             MainModule.authServiceConfig,
             BuildConfig.CLIENT_KEY,
             ResponseTypeValues.CODE,
-            Uri.parse(REDIRECT_URL)
+            Uri.parse(BuildConfig.CLIENT_REDIRECT_URL)
         ).setScope("$OFFLINE $PATTERN_STORE_READ")
             .build()
         val authIntent = authenticationService.getAuthorizationRequestIntent(authRequest)
