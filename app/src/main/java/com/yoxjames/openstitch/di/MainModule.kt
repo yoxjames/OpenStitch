@@ -5,6 +5,8 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
+import com.chuckerteam.chucker.api.ChuckerCollector
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.yoxjames.openstitch.BuildConfig
 import com.yoxjames.openstitch.DetailScreenState
@@ -98,11 +100,24 @@ object MainModule {
 
     @Provides
     @ActivityScoped
+    fun provideChuckerInterceptor(@ApplicationContext context: Context): ChuckerInterceptor {
+        return ChuckerInterceptor.Builder(context)
+            .collector(ChuckerCollector(context))
+            .maxContentLength(250000L)
+            .redactHeaders(emptySet())
+            .alwaysReadResponseBody(false)
+            .build()
+    }
+
+    @Provides
+    @ActivityScoped
     fun provideOkHttpWithAuthenticator(
         openStitchAuthenticator: OpenStitchAuthenticator,
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        chuckerInterceptor: ChuckerInterceptor,
     ): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(chuckerInterceptor)
             .authenticator(openStitchAuthenticator)
             // TODO: I suspect this isn't actually working right... Need to dig in....
             .cache(
