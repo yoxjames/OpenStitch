@@ -2,11 +2,9 @@ package com.yoxjames.openstitch.oauth
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
-
 import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.scopes.ActivityScoped
-
 import net.openid.appauth.AuthState
 import javax.inject.Inject
 

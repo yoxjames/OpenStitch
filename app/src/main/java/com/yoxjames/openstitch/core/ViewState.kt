@@ -21,7 +21,7 @@ fun interface ViewEventListener <VE : ViewEvent> {
     suspend fun onEvent(viewEvent: VE)
 }
 
-class ViewEventFlowAdapter <VE: ViewEvent> : ViewEventListener<VE> {
+class ViewEventFlowAdapter <VE : ViewEvent> : ViewEventListener<VE> {
     private val _viewEvents = MutableSharedFlow<VE>()
     val flow = _viewEvents.asSharedFlow()
 

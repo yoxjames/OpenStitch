@@ -77,12 +77,12 @@ data class LoadedPatternDetailState(
         true -> "No Size"
         false -> "US ${pattern.usNeedleSize}"
     }
-    private val metricLine = when(pattern.metricNeedleSize.isBlank()) {
+    private val metricLine = when (pattern.metricNeedleSize.isBlank()) {
         true -> ""
         false -> "${pattern.metricNeedleSize} mm"
     }
     private val needleSizeCard = QuickInfoCardViewState(
-        icon = QuickInfoDrawableIcon(if(isKnitting) R.drawable.knitting_needles else R.drawable.crochet_hook),
+        icon = QuickInfoDrawableIcon(if (isKnitting) R.drawable.knitting_needles else R.drawable.crochet_hook),
         firstLine = usSizeLine,
         secondLine = metricLine
     )

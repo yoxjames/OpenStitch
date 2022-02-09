@@ -1,7 +1,5 @@
 package com.yoxjames.openstitch
 
-import com.yoxjames.openstitch.ui.core.LoadingViewState
-import com.yoxjames.openstitch.ui.core.ScreenViewState
 import com.yoxjames.openstitch.detail.ContentState
 import com.yoxjames.openstitch.list.ListState
 import com.yoxjames.openstitch.loading.LoadingState
@@ -14,6 +12,8 @@ import com.yoxjames.openstitch.ui.SearchTopBarViewState
 import com.yoxjames.openstitch.ui.SearchViewState
 import com.yoxjames.openstitch.ui.core.DetailScreenViewState
 import com.yoxjames.openstitch.ui.core.ListScreenViewState
+import com.yoxjames.openstitch.ui.core.LoadingViewState
+import com.yoxjames.openstitch.ui.core.ScreenViewState
 
 sealed interface OpenStitchState {
     val viewState: ScreenViewState
@@ -31,10 +31,12 @@ data class ListScreenState(
 ) : OpenStitchState {
     override val viewState: ScreenViewState = ListScreenViewState(
         topBarViewState = when (searchState !is InactiveSearchState) {
-            true -> SearchTopBarViewState(SearchViewState(
-                hint = "Search Patterns",
-                text = if (searchState is EnteredSearchState) searchState.searchText else ""
-            ))
+            true -> SearchTopBarViewState(
+                SearchViewState(
+                    hint = "Search Patterns",
+                    text = if (searchState is EnteredSearchState) searchState.searchText else ""
+                )
+            )
             false -> DefaultTopBarViewState(
                 isSearchAvailable = true,
                 isBackAvailable = navigationState.isBackAvailable

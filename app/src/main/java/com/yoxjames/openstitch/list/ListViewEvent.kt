@@ -1,7 +1,7 @@
 package com.yoxjames.openstitch.list
 
-import com.yoxjames.openstitch.ui.core.ListScreenViewEvent
 import com.yoxjames.openstitch.core.ViewEvent
+import com.yoxjames.openstitch.ui.core.ListScreenViewEvent
 
 sealed interface ListViewEvent : ListScreenViewEvent {
     val pos: Int
