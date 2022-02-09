@@ -86,6 +86,8 @@ dependencies {
     implementation("com.google.accompanist:accompanist-pager:0.22.0-rc")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.22.0-rc")
     implementation("com.google.accompanist:accompanist-flowlayout:0.22.0-rc")
+    debugImplementation("com.github.chuckerteam.chucker:library:3.5.2")
+    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:3.5.2")
 
     kapt("com.google.dagger:hilt-compiler:2.40.5")
     kapt("com.google.dagger:dagger-compiler:2.40.5")
