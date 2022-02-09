@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
-import com.yoxjames.openstitch.oauth.OpenStitchAuthenticator
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.yoxjames.openstitch.BuildConfig
 import com.yoxjames.openstitch.DetailScreenState
@@ -13,32 +12,29 @@ import com.yoxjames.openstitch.ListScreenState
 import com.yoxjames.openstitch.LoadingScreenState
 import com.yoxjames.openstitch.OpenStitchState
 import com.yoxjames.openstitch.core.ConnectableFlowHolder
-import com.yoxjames.openstitch.list.StatefulListViewEvent
-import com.yoxjames.openstitch.navigation.NavigationStateFunction
-import com.yoxjames.openstitch.navigation.NavigationTransition
-import com.yoxjames.openstitch.navigation.OpenHotPatterns
-import com.yoxjames.openstitch.ui.core.ScreenViewEvent
-import com.yoxjames.openstitch.ui.core.ScreenViewState
 import com.yoxjames.openstitch.core.ViewEventFlowAdapter
 import com.yoxjames.openstitch.di.PatternsModule.PATTERNS_SCREEN
+import com.yoxjames.openstitch.list.StatefulListViewEvent
 import com.yoxjames.openstitch.navigation.Back
 import com.yoxjames.openstitch.navigation.NavigationScreenState
 import com.yoxjames.openstitch.navigation.NavigationState
+import com.yoxjames.openstitch.navigation.NavigationStateFunction
+import com.yoxjames.openstitch.navigation.NavigationTransition
+import com.yoxjames.openstitch.navigation.OpenHotPatterns
 import com.yoxjames.openstitch.navigation.OpenPatternDetail
 import com.yoxjames.openstitch.navigation.PatternDetail
 import com.yoxjames.openstitch.navigation.SearchPattern
-import com.yoxjames.openstitch.navigation.SearchingPatterns
+import com.yoxjames.openstitch.oauth.OpenStitchAuthenticator
 import com.yoxjames.openstitch.pattern.PatternFlowFactory
 import com.yoxjames.openstitch.pattern.PatternRow
-import com.yoxjames.openstitch.search.DisengageSearch
-import com.yoxjames.openstitch.search.EnteredSearchState
 import com.yoxjames.openstitch.search.InactiveSearchState
 import com.yoxjames.openstitch.search.SearchState
 import com.yoxjames.openstitch.ui.SearchBackClick
-import com.yoxjames.openstitch.ui.SearchViewEvent
 import com.yoxjames.openstitch.ui.TopBarBackClick
 import com.yoxjames.openstitch.ui.TopBarSearchViewEvent
 import com.yoxjames.openstitch.ui.core.BackPushed
+import com.yoxjames.openstitch.ui.core.ScreenViewEvent
+import com.yoxjames.openstitch.ui.core.ScreenViewState
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -60,7 +56,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
@@ -147,7 +142,6 @@ object MainModule {
         return viewEventFlowAdapter.flow
     }
 
-
     @Provides
     @ActivityScoped
     fun provideNavigationTransitions(
@@ -213,7 +207,7 @@ object MainModule {
         @Named(PATTERNS_SCREEN) listScreenStates: Flow<@JvmSuppressWildcards ListScreenState>,
         patternFlowFactory: PatternFlowFactory,
         navigationStates: StateFlow<@JvmSuppressWildcards NavigationState>,
-     ): StateFlow<@JvmSuppressWildcards OpenStitchState> {
+    ): StateFlow<@JvmSuppressWildcards OpenStitchState> {
         // Must be transformLatest or flatMapMerge. A new navigation state cancels the suspending call to emit on searchStates
         return merge(
             navigationStates.map { it.navigationState }
@@ -228,7 +222,7 @@ object MainModule {
                             )
                         }
                     )
-            },
+                },
             listScreenStates
         ).stateIn(coroutineScope, SharingStarted.Lazily, LoadingScreenState)
     }

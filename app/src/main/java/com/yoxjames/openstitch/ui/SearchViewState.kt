@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 data class SearchViewState(
     val hint: String,
     val text: String,
-): ViewState {
+) : ViewState {
     @Composable
     fun Composable(viewEventListener: ViewEventListener<SearchViewEvent>) {
         var text by remember { mutableStateOf(text) }
@@ -95,10 +95,9 @@ data class SearchViewState(
         }
         DisposableEffect(Unit) {
             focusRequester.requestFocus()
-            onDispose {  }
+            onDispose { }
         }
     }
-
 }
 
 sealed interface SearchViewEvent : ViewEvent

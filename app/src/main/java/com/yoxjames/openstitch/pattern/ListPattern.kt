@@ -51,4 +51,3 @@ object None : Price
 value class MonetaryPrice(
     val price: BigDecimal
 ) : Price
-

@@ -9,9 +9,9 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import com.yoxjames.openstitch.ui.core.TopBarScreenViewEvent
 import com.yoxjames.openstitch.core.ViewEventListener
 import com.yoxjames.openstitch.core.ViewState
+import com.yoxjames.openstitch.ui.core.TopBarScreenViewEvent
 import kotlinx.coroutines.launch
 
 sealed interface TopBarViewState : ViewState {
@@ -71,7 +71,7 @@ data class DefaultTopBarViewState(
 
 data class SearchTopBarViewState(
     private val searchViewState: SearchViewState
-): TopBarViewState {
+) : TopBarViewState {
     @Composable
     override fun Composable(viewEventListener: ViewEventListener<TopBarViewEvent>) {
         TopAppBar {

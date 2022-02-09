@@ -20,10 +20,10 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.skydoves.landscapist.glide.GlideImage
+import com.yoxjames.openstitch.core.ViewEventListener
 import com.yoxjames.openstitch.list.Click
 import com.yoxjames.openstitch.list.ListItemViewEvent
 import com.yoxjames.openstitch.list.ListItemViewState
-import com.yoxjames.openstitch.core.ViewEventListener
 import kotlinx.coroutines.launch
 
 data class PatternRowViewState(

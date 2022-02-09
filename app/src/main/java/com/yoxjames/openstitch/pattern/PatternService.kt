@@ -3,9 +3,7 @@ package com.yoxjames.openstitch.pattern
 import com.yoxjames.openstitch.pattern.api.PatternApiService
 import com.yoxjames.openstitch.pattern.api.RavelryCraft
 import com.yoxjames.openstitch.pattern.api.RavelryFullPattern
-import com.yoxjames.openstitch.pattern.api.RavelryPatternNeedleSize
 import kotlinx.coroutines.flow.flow
-import java.math.BigDecimal
 import javax.inject.Inject
 
 class PatternService @Inject constructor(
@@ -39,7 +37,7 @@ class PatternService @Inject constructor(
         metricNeedleSize = patternNeedleSizes.firstOrNull()?.prettyMetric ?: ""
     )
 
-    private val RavelryCraft.craftType get() = when(name) {
+    private val RavelryCraft.craftType get() = when (name) {
         "Knitting" -> CraftType.KNITTING
         "Crochet" -> CraftType.CROCHET
         else -> CraftType.UNKNOWN

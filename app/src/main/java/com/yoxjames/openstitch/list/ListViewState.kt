@@ -16,7 +16,7 @@ import com.yoxjames.openstitch.core.ViewState
 data class ListViewState(
     val listLayout: ListLayout,
     val items: List<ListItemViewState>,
-): ViewState {
+) : ViewState {
 
     /**
      * How the list is laid out. Right now only ROW (vertical scrolling list) is implemented.

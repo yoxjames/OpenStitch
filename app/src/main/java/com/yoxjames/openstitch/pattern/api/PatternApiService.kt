@@ -68,7 +68,7 @@ data class RavelryPatternAuthor(
     @SerialName("name") val name: String,
     @SerialName("patterns_count") val patternsCount: Int,
     @SerialName("permalink") val permalink: String?,
-    //@SerialName("users") val users: List<>
+    // @SerialName("users") val users: List<>
 )
 
 @Serializable

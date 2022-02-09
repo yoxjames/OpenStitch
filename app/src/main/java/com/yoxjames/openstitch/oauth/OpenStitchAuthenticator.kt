@@ -24,9 +24,11 @@ class OpenStitchAuthenticator @Inject constructor(
                 authState.performActionWithFreshTokens(authorizationService, clientAuthentication) { accessToken, idToken, ex ->
                     authStateManager.writeAuthState(authState)
                     if (accessToken != null) {
-                        cont.resume(response.request.newBuilder()
-                            .header("Authorization", "Bearer $accessToken")
-                            .build())
+                        cont.resume(
+                            response.request.newBuilder()
+                                .header("Authorization", "Bearer $accessToken")
+                                .build()
+                        )
                     } else {
                         cont.resumeWithException(ex!!.fillInStackTrace())
                     }

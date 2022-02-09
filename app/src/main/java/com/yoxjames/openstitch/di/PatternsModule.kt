@@ -4,8 +4,8 @@ import com.yoxjames.openstitch.ListScreenState
 import com.yoxjames.openstitch.loading.LoadState
 import com.yoxjames.openstitch.loading.Loaded
 import com.yoxjames.openstitch.loading.NotLoaded
-import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.navigation.HotPatterns
+import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.navigation.PatternsScreen
 import com.yoxjames.openstitch.navigation.SearchingPatterns
 import com.yoxjames.openstitch.pattern.PatternsFlowFactory

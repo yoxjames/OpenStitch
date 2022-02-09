@@ -19,7 +19,7 @@ val LoadingState.asBoolean get() = this == LoadingState.LOADING
 
 data class LoadingViewState(
     val showLoadingSpinner: Boolean
-): ViewState {
+) : ViewState {
     @Composable
     fun Composable() {
         if (showLoadingSpinner) {
