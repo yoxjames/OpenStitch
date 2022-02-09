@@ -1,9 +1,11 @@
 plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.5.31'
-    id 'kotlin-kapt'
-    id 'dagger.hilt.android.plugin'
+    id("com.android.application")
+    id("kotlin-android")
+    id("org.jetbrains.kotlin.plugin.serialization") version ("1.5.31")
+    id("kotlin-kapt")
+    id("dagger.hilt.android.plugin")
+    id("org.jlleitschuh.gradle.ktlint") version("10.2.1")
+    id("org.jlleitschuh.gradle.ktlint-idea") version("10.2.1")
 }
 
 android {
