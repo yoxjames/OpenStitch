@@ -7,6 +7,7 @@ object Dependencies {
     const val activityComposeVersion = "1.4.0"
     const val appAuthVersion = "0.11.1"
     const val appCompatVersion = "1.4.1"
+    const val chuckerVersion = "3.5.2"
     const val composeVersion = "1.0.5"
     const val coreKtxVersion = "1.7.0"
     const val daggerVersion = "2.40.5"
