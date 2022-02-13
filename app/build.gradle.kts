@@ -1,14 +1,30 @@
+import Dependencies.accompanistVersion
+import Dependencies.activityComposeVersion
+import Dependencies.appAuthVersion
+import Dependencies.appCompatVersion
+import Dependencies.composeVersion
+import Dependencies.coreKtxVersion
+import Dependencies.daggerVersion
+import Dependencies.jUnitVersion
+import Dependencies.kotlinCoroutinesVersion
+import Dependencies.kotlinSerializationVersion
+import Dependencies.landscapistVersion
+import Dependencies.lifecycleVersion
+import Dependencies.materialVersion
+import Dependencies.okHttpVersion
+import Dependencies.retrofitKotlinSerializationConverterVersion
+import Dependencies.retrofitVersion
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("org.jetbrains.kotlin.plugin.serialization") version ("1.5.31")
+    id("org.jetbrains.kotlin.plugin.serialization") version (Dependencies.kotlinVersion)
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
-    id("org.jlleitschuh.gradle.ktlint") version("10.2.1")
-    id("org.jlleitschuh.gradle.ktlint-idea") version("10.2.1")
+    id("org.jlleitschuh.gradle.ktlint") version(Dependencies.ktLintVersion)
+    id("org.jlleitschuh.gradle.ktlint-idea") version(Dependencies.ktLintVersion)
 }
 
-val composeVersion: String by rootProject.extra
 val CLIENT_SECRET: String by project
 val CLIENT_KEY: String by project
 val CLIENT_REDIRECT_URL: String by project
@@ -17,7 +33,7 @@ android {
     compileSdk = 31
 
     defaultConfig {
-        applicationId = "com.example.openstitch"
+        applicationId = "com.openstitch"
         minSdk = 23
         targetSdk = 31
         versionCode = 1
@@ -32,11 +48,15 @@ android {
         buildConfigField("String", "CLIENT_KEY", CLIENT_KEY)
         buildConfigField("String", "CLIENT_REDIRECT_URL", CLIENT_REDIRECT_URL)
     }
-
     buildTypes {
-        release {
+        getByName("release") {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+        create("alpha") {
+            initWith(getByName("debug"))
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -45,14 +65,12 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
-        useIR = true
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = composeVersion
-        kotlinCompilerVersion = "1.6.10"
     }
     packagingOptions {
         resources {
@@ -62,33 +80,33 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.7.0")
-    implementation("androidx.appcompat:appcompat:1.4.1")
-    implementation("com.google.android.material:material:1.5.0")
+    implementation("androidx.core:core-ktx:$coreKtxVersion")
+    implementation("androidx.appcompat:appcompat:$appCompatVersion")
+    implementation("com.google.android.material:material:$materialVersion")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.ui:ui-graphics:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
-    implementation("androidx.activity:activity-compose:1.4.0")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
-    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
-    implementation("net.openid:appauth:0.11.1")
-    implementation("com.google.dagger:dagger:2.40.5")
-    implementation("com.google.dagger:hilt-android:2.40.5")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
-    implementation("com.github.skydoves:landscapist-glide:1.4.5")
-    implementation("com.google.accompanist:accompanist-placeholder:0.22.0-rc")
-    implementation("com.google.accompanist:accompanist-pager:0.22.0-rc")
-    implementation("com.google.accompanist:accompanist-pager-indicators:0.22.0-rc")
-    implementation("com.google.accompanist:accompanist-flowlayout:0.22.0-rc")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
+    implementation("androidx.activity:activity-compose:$activityComposeVersion")
+    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$retrofitKotlinSerializationConverterVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
+    implementation("net.openid:appauth:$appAuthVersion")
+    implementation("com.google.dagger:dagger:$daggerVersion")
+    implementation("com.google.dagger:hilt-android:$daggerVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
+    implementation("com.squareup.okhttp3:okhttp:$okHttpVersion")
+    implementation("com.squareup.okhttp3:logging-interceptor:$okHttpVersion")
+    implementation("com.github.skydoves:landscapist-glide:$landscapistVersion")
+    implementation("com.google.accompanist:accompanist-placeholder:$accompanistVersion")
+    implementation("com.google.accompanist:accompanist-pager:$accompanistVersion")
+    implementation("com.google.accompanist:accompanist-pager-indicators:$accompanistVersion")
+    implementation("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
 
-    kapt("com.google.dagger:hilt-compiler:2.40.5")
-    kapt("com.google.dagger:dagger-compiler:2.40.5")
-    testImplementation("junit:junit:4.+")
+    kapt("com.google.dagger:hilt-compiler:$daggerVersion")
+    kapt("com.google.dagger:dagger-compiler:$daggerVersion")
+    testImplementation("junit:junit:$jUnitVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
 }
