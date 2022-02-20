@@ -1,41 +1,42 @@
-package com.yoxjames.openstitch.pattern
+package com.yoxjames.openstitch.pattern.ds
 
 import com.yoxjames.openstitch.pattern.api.PatternApiService
-import com.yoxjames.openstitch.pattern.api.RavelryListPattern
+import com.yoxjames.openstitch.pattern.api.models.RavelryListPattern
+import com.yoxjames.openstitch.pattern.model.ListPattern
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-class PatternsService @Inject constructor(
+class PatternListDataSource @Inject constructor(
     private val patternApiService: PatternApiService
 ) {
     fun loadHotPatterns() = flow {
-        emit(LoadingPatterns)
-        val hotPatterns = patternApiService.search(sort = "recently-popular").patterns
-            .map(RavelryPatternMapper)
-        emit(HotPatternsLoaded(hotPatterns))
+        patternApiService.search(sort = "recently-popular").unwrap(
+            onSuccess = { emit(HotPatternsLoaded(it.patterns.map(RavelryPatternMapper))) },
+            onFailure = { /* TODO */ }
+        )
     }.flowOn(Dispatchers.IO)
 
     fun searchPatterns(query: String) = flow {
-        emit(LoadingPatterns)
-        val searchResults = patternApiService.search(query = query).patterns
-            .map(RavelryPatternMapper)
-        emit(PatternSearchLoaded(searchResults))
+        patternApiService.search(query = query).unwrap(
+            onSuccess = { emit(PatternSearchLoaded(it.patterns.map(RavelryPatternMapper))) },
+            onFailure = { /* TODO */ }
+        )
     }.flowOn(Dispatchers.IO)
 }
 
-sealed interface PatternFlowTransition
+sealed interface PatternListTransition
 
-object LoadingPatterns : PatternFlowTransition
+object LoadingPatterns : PatternListTransition
 
 data class HotPatternsLoaded(
     val listPatterns: List<ListPattern>,
-) : PatternFlowTransition
+) : PatternListTransition
 
 data class PatternSearchLoaded(
     val listPatterns: List<ListPattern>
-) : PatternFlowTransition
+) : PatternListTransition
 
 object RavelryPatternMapper : (RavelryListPattern) -> ListPattern {
     override fun invoke(ravelryPattern: RavelryListPattern): ListPattern {

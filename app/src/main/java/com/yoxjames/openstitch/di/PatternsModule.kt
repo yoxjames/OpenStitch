@@ -8,8 +8,8 @@ import com.yoxjames.openstitch.navigation.HotPatterns
 import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.navigation.PatternsScreen
 import com.yoxjames.openstitch.navigation.SearchingPatterns
-import com.yoxjames.openstitch.pattern.PatternsFlowFactory
-import com.yoxjames.openstitch.pattern.PatternsState
+import com.yoxjames.openstitch.pattern.state.PatternListState
+import com.yoxjames.openstitch.pattern.vm.PatternListViewModel
 import com.yoxjames.openstitch.search.DisengageSearch
 import com.yoxjames.openstitch.search.InactiveSearchState
 import com.yoxjames.openstitch.search.SearchConfiguration
@@ -77,7 +77,7 @@ object PatternsModule {
     @ActivityScoped
     @Named(PATTERNS_SCREEN)
     fun provideListScreenStates(
-        patternsFlowFactory: PatternsFlowFactory,
+        patternsListViewModel: PatternListViewModel,
         navigationStates: StateFlow<@JvmSuppressWildcards NavigationState>,
         @Named(PATTERNS_SCREEN) searchStates: StateFlow<@JvmSuppressWildcards SearchState>
     ): Flow<@JvmSuppressWildcards ListScreenState> {
@@ -93,7 +93,7 @@ object PatternsModule {
                             Loaded(
                                 loadTime = Date().time,
                                 navigationScreenState = pr,
-                                state = patternsFlowFactory.loadScreen(pr.searchText)
+                                state = patternsListViewModel.contentState(pr.searchText)
                             )
                         } else {
                             ls
@@ -102,10 +102,10 @@ object PatternsModule {
                     NotLoaded -> Loaded(
                         loadTime = Date().time,
                         navigationScreenState = pr,
-                        state = patternsFlowFactory.loadScreen(pr.searchText)
+                        state = patternsListViewModel.contentState(pr.searchText)
                     )
                 }
-            }.filterIsInstance<Loaded<PatternsState>>()
+            }.filterIsInstance<Loaded<PatternListState>>()
             .transformLatest { listScreenState ->
                 emitAll(
                     listScreenState.state.map {
