@@ -9,9 +9,9 @@ import com.yoxjames.openstitch.pattern.ds.LoadingPattern
 import com.yoxjames.openstitch.pattern.ds.PatternDetailTransition
 import com.yoxjames.openstitch.pattern.ds.PatternLoaded
 import com.yoxjames.openstitch.pattern.model.FullPattern
+import com.yoxjames.openstitch.pattern.vs.mapper.PatternDetailViewStateMapper
 import com.yoxjames.openstitch.ui.generic.QuickInfoCardViewState
 import com.yoxjames.openstitch.ui.generic.QuickInfoComposableVectorIcon
-import com.yoxjames.openstitch.pattern.vs.mapper.PatternDetailViewStateMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.scan
 

@@ -14,9 +14,7 @@ import com.yoxjames.openstitch.pattern.vs.PatternRowViewState
 import com.yoxjames.openstitch.ui.generic.Divider
 import com.yoxjames.openstitch.ui.generic.TitleRowState
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.scan
-import kotlinx.coroutines.flow.shareIn
 
 data class PatternListState(
     val listPatterns: List<ListPattern>,
@@ -45,25 +43,24 @@ data class PatternRow(
 
 fun Flow<PatternListTransition>.asState(): Flow<PatternListState> {
     return scan(
-            PatternListState(listPatterns = emptyList(), isHotPatterns = true, loadingState = LoadingState.LOADING)
-        ) { listState, transition ->
-            when (transition) {
-                LoadingPatterns -> PatternListState(
-                    listPatterns = listState.listPatterns,
-                    isHotPatterns = listState.isHotPatterns,
-                    loadingState = LoadingState.LOADING
-                )
-                is HotPatternsLoaded -> PatternListState(
-                    listPatterns = transition.listPatterns,
-                    isHotPatterns = true,
-                    loadingState = LoadingState.COMPLETE
-                )
-                is PatternSearchLoaded -> PatternListState(
-                    listPatterns = transition.listPatterns,
-                    isHotPatterns = false,
-                    loadingState = LoadingState.COMPLETE
-                )
-            }
+        PatternListState(listPatterns = emptyList(), isHotPatterns = true, loadingState = LoadingState.LOADING)
+    ) { listState, transition ->
+        when (transition) {
+            LoadingPatterns -> PatternListState(
+                listPatterns = listState.listPatterns,
+                isHotPatterns = listState.isHotPatterns,
+                loadingState = LoadingState.LOADING
+            )
+            is HotPatternsLoaded -> PatternListState(
+                listPatterns = transition.listPatterns,
+                isHotPatterns = true,
+                loadingState = LoadingState.COMPLETE
+            )
+            is PatternSearchLoaded -> PatternListState(
+                listPatterns = transition.listPatterns,
+                isHotPatterns = false,
+                loadingState = LoadingState.COMPLETE
+            )
         }
+    }
 }
-

@@ -22,7 +22,7 @@ import java.text.NumberFormat
 import java.util.Currency
 
 object PatternDetailViewStateMapper : (PatternDetailState) -> ContentViewState {
-    override fun invoke(state: PatternDetailState) = when(state) {
+    override fun invoke(state: PatternDetailState) = when (state) {
         is LoadedPatternDetailState -> state.toViewState()
         LoadingPatternState -> EmptyContentViewState
     }
