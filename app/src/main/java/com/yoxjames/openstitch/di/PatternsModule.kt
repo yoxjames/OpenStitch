@@ -17,6 +17,8 @@ import com.yoxjames.openstitch.search.SearchScanFunction
 import com.yoxjames.openstitch.search.SearchState
 import com.yoxjames.openstitch.search.SearchTransition
 import com.yoxjames.openstitch.search.TopBarViewSearchViewEventTransitionMapper
+import com.yoxjames.openstitch.ui.DefaultBottomBarViewState
+import com.yoxjames.openstitch.ui.NoBottomBarViewState
 import com.yoxjames.openstitch.ui.TopBarViewEvent
 import com.yoxjames.openstitch.ui.core.BackPushed
 import com.yoxjames.openstitch.ui.core.ScreenViewEvent
@@ -112,6 +114,7 @@ object PatternsModule {
                         ListScreenState(
                             listState = it.listState,
                             searchState = searchStates.value,
+                            bottomBarViewState = it.bottomBarViewState,
                             loadingState = it.loadingState,
                             navigationState = navigationStates.value
                         )

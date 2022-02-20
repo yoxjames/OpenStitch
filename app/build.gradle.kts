@@ -3,6 +3,7 @@ import Dependencies.activityComposeVersion
 import Dependencies.appAuthVersion
 import Dependencies.appCompatVersion
 import Dependencies.chuckerVersion
+import Dependencies.composeDestinationsVersion
 import Dependencies.composeVersion
 import Dependencies.coreKtxVersion
 import Dependencies.daggerVersion

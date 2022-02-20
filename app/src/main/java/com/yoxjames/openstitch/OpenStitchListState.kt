@@ -7,9 +7,7 @@ import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.search.EnteredSearchState
 import com.yoxjames.openstitch.search.InactiveSearchState
 import com.yoxjames.openstitch.search.SearchState
-import com.yoxjames.openstitch.ui.DefaultTopBarViewState
-import com.yoxjames.openstitch.ui.SearchTopBarViewState
-import com.yoxjames.openstitch.ui.SearchViewState
+import com.yoxjames.openstitch.ui.*
 import com.yoxjames.openstitch.ui.core.DetailScreenViewState
 import com.yoxjames.openstitch.ui.core.ListScreenViewState
 import com.yoxjames.openstitch.ui.core.LoadingViewState
@@ -26,6 +24,7 @@ object LoadingScreenState : OpenStitchState {
 data class ListScreenState(
     val searchState: SearchState,
     val listState: ListState,
+    val bottomBarViewState: BottomBarViewState,
     val loadingState: LoadingState,
     val navigationState: NavigationState
 ) : OpenStitchState {
@@ -42,6 +41,7 @@ data class ListScreenState(
                 isBackAvailable = navigationState.isBackAvailable
             )
         },
+        bottomBarViewState = bottomBarViewState,
         listViewState = listState.asViewState(),
         loadingViewState = loadingState.viewState
     )
@@ -57,6 +57,7 @@ data class DetailScreenState(
             isSearchAvailable = false,
             isBackAvailable = navigationState.isBackAvailable
         ),
+        bottomBarViewState = DefaultBottomBarViewState,
         contentViewState = contentState.viewState,
         loadingViewState = loadingState.viewState
     )

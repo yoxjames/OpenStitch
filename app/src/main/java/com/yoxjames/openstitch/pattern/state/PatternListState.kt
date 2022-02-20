@@ -11,6 +11,9 @@ import com.yoxjames.openstitch.pattern.ds.PatternListTransition
 import com.yoxjames.openstitch.pattern.ds.PatternSearchLoaded
 import com.yoxjames.openstitch.pattern.model.ListPattern
 import com.yoxjames.openstitch.pattern.vs.PatternRowViewState
+import com.yoxjames.openstitch.ui.BottomBarViewState
+import com.yoxjames.openstitch.ui.DefaultBottomBarViewState
+import com.yoxjames.openstitch.ui.NoBottomBarViewState
 import com.yoxjames.openstitch.ui.generic.Divider
 import com.yoxjames.openstitch.ui.generic.TitleRowState
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +21,7 @@ import kotlinx.coroutines.flow.scan
 
 data class PatternListState(
     val listPatterns: List<ListPattern>,
+    val bottomBarViewState: BottomBarViewState,
     val isHotPatterns: Boolean,
     val loadingState: LoadingState
 ) {
@@ -43,21 +47,29 @@ data class PatternRow(
 
 fun Flow<PatternListTransition>.asState(): Flow<PatternListState> {
     return scan(
-        PatternListState(listPatterns = emptyList(), isHotPatterns = true, loadingState = LoadingState.LOADING)
+        PatternListState(
+            listPatterns = emptyList(),
+            bottomBarViewState = NoBottomBarViewState,
+            isHotPatterns = true,
+            loadingState = LoadingState.LOADING
+        )
     ) { listState, transition ->
         when (transition) {
             LoadingPatterns -> PatternListState(
                 listPatterns = listState.listPatterns,
+                bottomBarViewState = NoBottomBarViewState,
                 isHotPatterns = listState.isHotPatterns,
                 loadingState = LoadingState.LOADING
             )
             is HotPatternsLoaded -> PatternListState(
                 listPatterns = transition.listPatterns,
+                bottomBarViewState = DefaultBottomBarViewState,
                 isHotPatterns = true,
                 loadingState = LoadingState.COMPLETE
             )
             is PatternSearchLoaded -> PatternListState(
                 listPatterns = transition.listPatterns,
+                bottomBarViewState = DefaultBottomBarViewState,
                 isHotPatterns = false,
                 loadingState = LoadingState.COMPLETE
             )
