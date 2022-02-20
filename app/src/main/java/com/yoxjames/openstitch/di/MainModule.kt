@@ -9,7 +9,6 @@ import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.yoxjames.openstitch.BuildConfig
-import com.yoxjames.openstitch.DetailScreenState
 import com.yoxjames.openstitch.ListScreenState
 import com.yoxjames.openstitch.LoadingScreenState
 import com.yoxjames.openstitch.OpenStitchState
@@ -27,8 +26,8 @@ import com.yoxjames.openstitch.navigation.OpenPatternDetail
 import com.yoxjames.openstitch.navigation.PatternDetail
 import com.yoxjames.openstitch.navigation.SearchPattern
 import com.yoxjames.openstitch.oauth.OpenStitchAuthenticator
-import com.yoxjames.openstitch.pattern.PatternFlowFactory
-import com.yoxjames.openstitch.pattern.PatternRow
+import com.yoxjames.openstitch.pattern.state.PatternRow
+import com.yoxjames.openstitch.pattern.vm.PatternDetailViewModel
 import com.yoxjames.openstitch.search.InactiveSearchState
 import com.yoxjames.openstitch.search.SearchState
 import com.yoxjames.openstitch.ui.SearchBackClick
@@ -220,24 +219,14 @@ object MainModule {
     fun provideAppState(
         coroutineScope: CoroutineScope,
         @Named(PATTERNS_SCREEN) listScreenStates: Flow<@JvmSuppressWildcards ListScreenState>,
-        patternFlowFactory: PatternFlowFactory,
         navigationStates: StateFlow<@JvmSuppressWildcards NavigationState>,
+        patternDetailViewModelFactory: PatternDetailViewModel
     ): StateFlow<@JvmSuppressWildcards OpenStitchState> {
         // Must be transformLatest or flatMapMerge. A new navigation state cancels the suspending call to emit on searchStates
         return merge(
             navigationStates.map { it.navigationState }
                 .filterIsInstance<PatternDetail>()
-                .transform { navState ->
-                    emitAll(
-                        patternFlowFactory.getFullPattern(navState.patternId).map {
-                            DetailScreenState(
-                                contentState = it,
-                                loadingState = it.loadingState,
-                                navigationState = navigationStates.value
-                            )
-                        }
-                    )
-                },
+                .transform { emitAll(patternDetailViewModelFactory.contentState(patternId = it.patternId)) },
             listScreenStates
         ).stateIn(coroutineScope, SharingStarted.Lazily, LoadingScreenState)
     }

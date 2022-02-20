@@ -1,19 +1,28 @@
-package com.yoxjames.openstitch.pattern
+package com.yoxjames.openstitch.pattern.ds
 
 import com.yoxjames.openstitch.pattern.api.PatternApiService
-import com.yoxjames.openstitch.pattern.api.RavelryCraft
-import com.yoxjames.openstitch.pattern.api.RavelryFullPattern
+import com.yoxjames.openstitch.pattern.api.models.RavelryCraft
+import com.yoxjames.openstitch.pattern.api.models.RavelryFullPattern
+import com.yoxjames.openstitch.pattern.model.CraftType
+import com.yoxjames.openstitch.pattern.model.Free
+import com.yoxjames.openstitch.pattern.model.FullPattern
+import com.yoxjames.openstitch.pattern.model.Image
+import com.yoxjames.openstitch.pattern.model.MonetaryPrice
+import com.yoxjames.openstitch.pattern.model.None
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-class PatternService @Inject constructor(
+class PatternDetailDataSource @Inject constructor(
     private val patternApiService: PatternApiService
 ) {
     fun loadPattern(patternId: Long) = flow {
-        emit(LoadingPattern)
-        val fullPattern = patternApiService.getFullPattern(patternId).pattern
-        emit(PatternLoaded(fullPattern.asFullPattern))
-    }
+        patternApiService.getFullPattern(patternId).unwrap(
+            onSuccess = { emit(PatternLoaded(it.pattern.asFullPattern)) },
+            onFailure = { /* TODO */ }
+        )
+    }.flowOn(Dispatchers.IO)
 
     private val RavelryFullPattern.asFullPattern get() = FullPattern(
         id = id,
