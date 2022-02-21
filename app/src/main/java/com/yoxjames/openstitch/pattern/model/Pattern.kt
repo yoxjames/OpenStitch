@@ -1,10 +1,4 @@
-package com.yoxjames.openstitch.pattern
-
-import java.math.BigDecimal
-
-enum class CraftType {
-    KNITTING, CROCHET, UNKNOWN;
-}
+package com.yoxjames.openstitch.pattern.model
 
 sealed interface Pattern {
     val id: Long
@@ -35,19 +29,3 @@ data class FullPattern(
     val usNeedleSize: String,
     val metricNeedleSize: String
 ) : Pattern
-
-data class Image(
-    val imageUrl: String,
-    val caption: String
-)
-
-sealed interface Price
-
-object Free : Price
-
-object None : Price
-
-@JvmInline
-value class MonetaryPrice(
-    val price: BigDecimal
-) : Price

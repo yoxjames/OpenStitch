@@ -9,38 +9,13 @@ import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.yoxjames.openstitch.BuildConfig
-<<<<<<< Updated upstream
-import com.yoxjames.openstitch.DetailScreenState
-import com.yoxjames.openstitch.ListScreenState
-import com.yoxjames.openstitch.LoadingScreenState
-import com.yoxjames.openstitch.OpenStitchState
-import com.yoxjames.openstitch.core.ConnectableFlowHolder
-import com.yoxjames.openstitch.core.ViewEventFlowAdapter
-import com.yoxjames.openstitch.di.PatternsModule.PATTERNS_SCREEN
-import com.yoxjames.openstitch.list.StatefulListViewEvent
-import com.yoxjames.openstitch.navigation.Back
-=======
 import com.yoxjames.openstitch.navigation.HotPatterns
->>>>>>> Stashed changes
 import com.yoxjames.openstitch.navigation.NavigationScreenState
 import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.navigation.NavigationStateFunction
 import com.yoxjames.openstitch.navigation.NavigationTransition
 import com.yoxjames.openstitch.oauth.OpenStitchAuthenticator
-<<<<<<< Updated upstream
-import com.yoxjames.openstitch.pattern.PatternFlowFactory
-import com.yoxjames.openstitch.pattern.PatternRow
-import com.yoxjames.openstitch.search.InactiveSearchState
-import com.yoxjames.openstitch.search.SearchState
-import com.yoxjames.openstitch.ui.SearchBackClick
-import com.yoxjames.openstitch.ui.TopBarBackClick
-import com.yoxjames.openstitch.ui.TopBarSearchViewEvent
-import com.yoxjames.openstitch.ui.core.BackPushed
-import com.yoxjames.openstitch.ui.core.ScreenViewEvent
-import com.yoxjames.openstitch.ui.core.ScreenViewState
-=======
 import com.yoxjames.openstitch.pattern.api.PatternApiService
->>>>>>> Stashed changes
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -187,53 +162,7 @@ object MainModule {
 
     @Provides
     @ActivityScoped
-<<<<<<< Updated upstream
-    fun provideAppState(
-        coroutineScope: CoroutineScope,
-        @Named(PATTERNS_SCREEN) listScreenStates: Flow<@JvmSuppressWildcards ListScreenState>,
-        patternFlowFactory: PatternFlowFactory,
-        navigationStates: StateFlow<@JvmSuppressWildcards NavigationState>,
-    ): StateFlow<@JvmSuppressWildcards OpenStitchState> {
-        // Must be transformLatest or flatMapMerge. A new navigation state cancels the suspending call to emit on searchStates
-        return merge(
-            navigationStates.map { it.navigationState }
-                .filterIsInstance<PatternDetail>()
-                .transform { navState ->
-                    emitAll(
-                        patternFlowFactory.getFullPattern(navState.patternId).map {
-                            DetailScreenState(
-                                contentState = it,
-                                loadingState = it.loadingState,
-                                navigationState = navigationStates.value
-                            )
-                        }
-                    )
-                },
-            listScreenStates
-        ).stateIn(coroutineScope, SharingStarted.Lazily, LoadingScreenState)
-    }
-
-    @Provides
-    @ActivityScoped
-    fun provideAppStates(appState: StateFlow<@JvmSuppressWildcards OpenStitchState>): Flow<@JvmSuppressWildcards OpenStitchState> {
-        return appState
-    }
-
-    @Provides
-    @ActivityScoped
-    fun provideScreenViewStates(appStates: Flow<@JvmSuppressWildcards OpenStitchState>): Flow<@JvmSuppressWildcards ScreenViewState> {
-        return appStates.map { it.viewState }
-    }
-
-    @Provides
-    @ActivityScoped
-    fun provideStatefulViewEvents(
-        connectableFlowHolder: ConnectableFlowHolder<@JvmSuppressWildcards StatefulListViewEvent>
-    ): Flow<@JvmSuppressWildcards StatefulListViewEvent> {
-        return connectableFlowHolder.flow
-=======
     fun providePatternApiService(retrofit: Retrofit): PatternApiService {
         return retrofit.create(PatternApiService::class.java)
->>>>>>> Stashed changes
     }
 }

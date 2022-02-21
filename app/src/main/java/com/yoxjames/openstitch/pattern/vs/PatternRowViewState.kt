@@ -1,4 +1,4 @@
-package com.yoxjames.openstitch.ui.pattern
+package com.yoxjames.openstitch.pattern.vs
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

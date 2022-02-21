@@ -1,4 +1,4 @@
-package com.yoxjames.openstitch.ui.pattern
+package com.yoxjames.openstitch.pattern.vs
 
 import android.text.method.LinkMovementMethod
 import android.widget.TextView

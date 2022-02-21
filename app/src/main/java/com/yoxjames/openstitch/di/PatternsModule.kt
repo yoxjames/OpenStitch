@@ -1,15 +1,8 @@
 package com.yoxjames.openstitch.di
 
-import com.yoxjames.openstitch.ListScreenState
-import com.yoxjames.openstitch.loading.LoadState
-import com.yoxjames.openstitch.loading.Loaded
-import com.yoxjames.openstitch.loading.NotLoaded
 import com.yoxjames.openstitch.navigation.HotPatterns
 import com.yoxjames.openstitch.navigation.NavigationState
-import com.yoxjames.openstitch.navigation.PatternsScreen
 import com.yoxjames.openstitch.navigation.SearchingPatterns
-import com.yoxjames.openstitch.pattern.PatternsFlowFactory
-import com.yoxjames.openstitch.pattern.PatternsState
 import com.yoxjames.openstitch.search.DisengageSearch
 import com.yoxjames.openstitch.search.InactiveSearchState
 import com.yoxjames.openstitch.search.SearchConfiguration
@@ -41,9 +34,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
-import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.zip
-import java.util.Date
 import javax.inject.Named
 
 @Module
@@ -71,53 +62,6 @@ object PatternsModule {
             ) { state, transition ->
                 SearchScanFunction(state, transition)
             }.stateIn(coroutineScope, SharingStarted.Lazily, InactiveSearchState(searchConfiguration))
-    }
-
-    @Provides
-    @ActivityScoped
-    @Named(PATTERNS_SCREEN)
-    fun provideListScreenStates(
-        patternsFlowFactory: PatternsFlowFactory,
-        navigationStates: StateFlow<@JvmSuppressWildcards NavigationState>,
-        @Named(PATTERNS_SCREEN) searchStates: StateFlow<@JvmSuppressWildcards SearchState>
-    ): Flow<@JvmSuppressWildcards ListScreenState> {
-        val cacheTime = 1000 * 60 * 10
-        return navigationStates
-            .map { it.navigationState }
-            .filterIsInstance<PatternsScreen>()
-            .scan<PatternsScreen, LoadState>(NotLoaded) { ls, pr ->
-                when (ls) {
-                    is Loaded<*> -> {
-                        val cachedScreen = ls.navigationScreenState as PatternsScreen
-                        if (Date().time - ls.loadTime > cacheTime || cachedScreen.searchText != pr.searchText) {
-                            Loaded(
-                                loadTime = Date().time,
-                                navigationScreenState = pr,
-                                state = patternsFlowFactory.loadScreen(pr.searchText)
-                            )
-                        } else {
-                            ls
-                        }
-                    }
-                    NotLoaded -> Loaded(
-                        loadTime = Date().time,
-                        navigationScreenState = pr,
-                        state = patternsFlowFactory.loadScreen(pr.searchText)
-                    )
-                }
-            }.filterIsInstance<Loaded<PatternsState>>()
-            .transformLatest { listScreenState ->
-                emitAll(
-                    listScreenState.state.map {
-                        ListScreenState(
-                            listState = it.listState,
-                            searchState = searchStates.value,
-                            loadingState = it.loadingState,
-                            navigationState = navigationStates.value
-                        )
-                    }
-                )
-            }
     }
 
     @Provides
