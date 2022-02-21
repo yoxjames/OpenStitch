@@ -1,26 +1,18 @@
 package com.yoxjames.openstitch.ui.core
 
-import android.graphics.drawable.Icon
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import com.yoxjames.openstitch.core.ViewEvent
 import com.yoxjames.openstitch.core.ViewEventListener
 import com.yoxjames.openstitch.core.ViewState
 import com.yoxjames.openstitch.detail.ContentViewState
 import com.yoxjames.openstitch.list.ListViewState
 import com.yoxjames.openstitch.loading.LoadingViewState
-import com.yoxjames.openstitch.ui.*
-import org.w3c.dom.Text
+import com.yoxjames.openstitch.ui.BottomBarViewState
+import com.yoxjames.openstitch.ui.DefaultTopBarViewState
+import com.yoxjames.openstitch.ui.NoBottomBarViewState
+import com.yoxjames.openstitch.ui.TopBarViewState
 
 data class ScreenStates(
     val patternListState: LazyListState

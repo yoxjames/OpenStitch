@@ -10,6 +10,7 @@ import Dependencies.daggerVersion
 import Dependencies.jUnitVersion
 import Dependencies.kotlinCoroutinesVersion
 import Dependencies.kotlinSerializationVersion
+import Dependencies.kspVersion
 import Dependencies.landscapistVersion
 import Dependencies.lifecycleVersion
 import Dependencies.materialVersion
@@ -25,11 +26,23 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("org.jlleitschuh.gradle.ktlint") version(Dependencies.ktLintVersion)
     id("org.jlleitschuh.gradle.ktlint-idea") version(Dependencies.ktLintVersion)
+    id("com.google.devtools.ksp") version(Dependencies.kspVersion)
 }
 
 val CLIENT_SECRET: String by project
 val CLIENT_KEY: String by project
 val CLIENT_REDIRECT_URL: String by project
+
+kotlin {
+    sourceSets {
+        debug {
+            kotlin.srcDir("build/generated/ksp/debug/kotlin")
+        }
+        release {
+            kotlin.srcDir("build/generated/ksp/release/kotlin")
+        }
+    }
+}
 
 android {
     compileSdk = 31
@@ -108,6 +121,8 @@ dependencies {
     implementation("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
     debugImplementation("com.github.chuckerteam.chucker:library:$chuckerVersion")
     releaseImplementation("com.github.chuckerteam.chucker:library-no-op:$chuckerVersion")
+    implementation("io.github.raamcosta.compose-destinations:core:$composeDestinationsVersion")
+    ksp("io.github.raamcosta.compose-destinations:ksp:$composeDestinationsVersion")
 
     kapt("com.google.dagger:hilt-compiler:$daggerVersion")
     kapt("com.google.dagger:dagger-compiler:$daggerVersion")

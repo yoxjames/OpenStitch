@@ -7,7 +7,11 @@ import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.search.EnteredSearchState
 import com.yoxjames.openstitch.search.InactiveSearchState
 import com.yoxjames.openstitch.search.SearchState
-import com.yoxjames.openstitch.ui.*
+import com.yoxjames.openstitch.ui.BottomBarViewState
+import com.yoxjames.openstitch.ui.DefaultBottomBarViewState
+import com.yoxjames.openstitch.ui.DefaultTopBarViewState
+import com.yoxjames.openstitch.ui.SearchTopBarViewState
+import com.yoxjames.openstitch.ui.SearchViewState
 import com.yoxjames.openstitch.ui.core.DetailScreenViewState
 import com.yoxjames.openstitch.ui.core.ListScreenViewState
 import com.yoxjames.openstitch.ui.core.LoadingViewState
