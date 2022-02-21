@@ -1,15 +1,13 @@
 package com.yoxjames.openstitch.list
 
-@JvmInline
-value class ListState(
-    val items: List<ListItemState>
+data class ListState(
+    val items: List<ListItemState>,
+    val config: ListViewConfiguration = ListViewConfiguration()
 ) {
-    fun asViewState(config: ListViewConfiguration = ListViewConfiguration()): ListViewState {
-        return ListViewState(
-            listLayout = config.layout,
-            items = items.map { it.viewState }
-        )
-    }
+    val viewState = ListViewState(
+        listLayout = config.layout,
+        items = items.map { it.viewState }
+    )
 }
 
 interface ListItemState {

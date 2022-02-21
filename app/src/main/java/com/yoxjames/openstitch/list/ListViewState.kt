@@ -16,7 +16,7 @@ import com.yoxjames.openstitch.core.ViewState
 data class ListViewState(
     val listLayout: ListLayout,
     val items: List<ListItemViewState>,
-) : ViewState {
+) {
 
     /**
      * How the list is laid out. Right now only ROW (vertical scrolling list) is implemented.
@@ -26,7 +26,7 @@ data class ListViewState(
     }
 
     @Composable
-    fun Composable(scrollState: LazyListState, viewEventListener: ViewEventListener<ListViewEvent>) {
+    fun Composable(scrollState: LazyListState, viewEventListener: ViewEventListener<PositionalListViewEvent>) {
         LazyColumn(state = scrollState) {
             itemsIndexed(items) { index, item ->
                 item.Composable { viewEventListener.onEvent(PositionalListViewEvent(pos = index, event = it)) }

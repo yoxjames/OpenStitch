@@ -4,11 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import com.yoxjames.openstitch.R
-import com.yoxjames.openstitch.detail.ContentViewState
-import com.yoxjames.openstitch.detail.EmptyContentViewState
-import com.yoxjames.openstitch.pattern.LoadedPatternDetailState
-import com.yoxjames.openstitch.pattern.LoadingPatternState
-import com.yoxjames.openstitch.pattern.PatternDetailState
+import com.yoxjames.openstitch.pattern.state.LoadedPatternDetailState
 import com.yoxjames.openstitch.pattern.model.CraftType
 import com.yoxjames.openstitch.pattern.model.Free
 import com.yoxjames.openstitch.pattern.model.MonetaryPrice
@@ -21,10 +17,9 @@ import com.yoxjames.openstitch.ui.generic.QuickInfoDrawableIcon
 import java.text.NumberFormat
 import java.util.Currency
 
-object PatternDetailViewStateMapper : (PatternDetailState) -> ContentViewState {
-    override fun invoke(state: PatternDetailState) = when (state) {
-        is LoadedPatternDetailState -> state.toViewState()
-        LoadingPatternState -> EmptyContentViewState
+object PatternDetailViewStateMapper : (LoadedPatternDetailState) -> PatternDetailViewState {
+    override fun invoke(state: LoadedPatternDetailState): PatternDetailViewState {
+        return state.toViewState()
     }
 
     private fun LoadedPatternDetailState.toViewState(): PatternDetailViewState {
