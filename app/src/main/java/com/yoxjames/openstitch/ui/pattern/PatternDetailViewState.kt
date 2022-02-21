@@ -28,7 +28,6 @@ import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import com.skydoves.landscapist.glide.GlideImage
 import com.yoxjames.openstitch.core.ViewEventListener
-import com.yoxjames.openstitch.detail.ContentViewState
 import com.yoxjames.openstitch.ui.core.ScreenViewEvent
 import com.yoxjames.openstitch.ui.generic.QuickInfoCardViewState
 
@@ -43,10 +42,10 @@ data class PatternDetailViewState(
     val gallery: List<PatternPhoto>,
     val description: String,
     val quickInfoCards: List<QuickInfoCardViewState>,
-) : ContentViewState {
+) {
     @ExperimentalPagerApi
     @Composable
-    override fun Composable(viewEventListener: ViewEventListener<ScreenViewEvent>) {
+    fun Composable(viewEventListener: ViewEventListener<ScreenViewEvent>) {
         val imageCount = gallery.count()
         val scrollState = rememberScrollState()
         Column(

@@ -4,51 +4,44 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.lifecycleScope
-import com.yoxjames.openstitch.core.ConnectableFlowHolder
-import com.yoxjames.openstitch.core.ViewEventFlowAdapter
-import com.yoxjames.openstitch.list.PositionalListViewEvent
-import com.yoxjames.openstitch.list.StatefulListViewEvent
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.yoxjames.openstitch.navigation.Back
+import com.yoxjames.openstitch.navigation.HotPatterns
+import com.yoxjames.openstitch.navigation.NavigationScreenState
 import com.yoxjames.openstitch.navigation.NavigationState
+import com.yoxjames.openstitch.navigation.NavigationTransition
+import com.yoxjames.openstitch.navigation.None
+import com.yoxjames.openstitch.navigation.PatternDetail
+import com.yoxjames.openstitch.navigation.SearchingPatterns
 import com.yoxjames.openstitch.oauth.AuthenticationManager
-import com.yoxjames.openstitch.ui.core.BackPushed
-import com.yoxjames.openstitch.ui.core.LoadingViewState
-import com.yoxjames.openstitch.ui.core.ScreenStates
-import com.yoxjames.openstitch.ui.core.ScreenViewEvent
-import com.yoxjames.openstitch.ui.core.ScreenViewState
-import com.yoxjames.openstitch.ui.core.ViewScreen
+import com.yoxjames.openstitch.pattern.vm.PatternDetailViewModel
+import com.yoxjames.openstitch.pattern.vm.PatternListViewModel
 import com.yoxjames.openstitch.ui.theme.OpenStitchTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@ExperimentalPagerApi
 @AndroidEntryPoint
 class OpenStitchActivity : ComponentActivity() {
     @Inject lateinit var authenticationManager: AuthenticationManager
-    @Inject lateinit var viewEventFlowAdapter: ViewEventFlowAdapter<@JvmSuppressWildcards ScreenViewEvent>
-    @Inject lateinit var screenViewStates: Flow<@JvmSuppressWildcards ScreenViewState>
-    @Inject lateinit var connectableFlowHolder: ConnectableFlowHolder<@JvmSuppressWildcards StatefulListViewEvent>
-    @Inject lateinit var appState: StateFlow<@JvmSuppressWildcards OpenStitchState>
+    @Inject lateinit var navigationScreenState: Flow<@JvmSuppressWildcards NavigationScreenState>
     @Inject lateinit var navigationState: StateFlow<@JvmSuppressWildcards NavigationState>
+    @Inject lateinit var patternDetailViewModel: PatternDetailViewModel
+    @Inject lateinit var patternListViewModel: PatternListViewModel
+    @Inject lateinit var navigationBus: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>
 
     override fun onBackPressed() {
         if (navigationState.value.isBackAvailable) {
-            lifecycleScope.launch { viewEventFlowAdapter.onEvent(BackPushed) }
+            lifecycleScope.launch { navigationBus.emit(Back) }
         } else {
             super.onBackPressed()
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        lifecycleScope.launch { viewEventFlowAdapter.onEvent(ViewScreen) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,28 +51,17 @@ class OpenStitchActivity : ComponentActivity() {
         } else {
             attachUi()
         }
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            connectableFlowHolder.connectFlow(
-                viewEventFlowAdapter.flow
-                    .filterIsInstance<PositionalListViewEvent>()
-                    .mapNotNull {
-                        when (val listState = appState.value) {
-                            is DetailScreenState -> null
-                            is ListScreenState -> StatefulListViewEvent(viewEvent = it.event, state = listState.listState.items[it.pos])
-                            LoadingScreenState -> null
-                        }
-                    }
-            )
-        }
     }
 
     private fun attachUi() {
         setContent {
             OpenStitchTheme {
-                val patternListState = rememberLazyListState()
-                val viewState = screenViewStates.collectAsState(initial = LoadingViewState)
-                viewState.value.Composable(ScreenStates(patternListState), viewEventFlowAdapter)
+                when (navigationScreenState.collectAsState(HotPatterns).value) {
+                    None -> Unit
+                    HotPatterns -> patternListViewModel.ComposeViewModel()
+                    is PatternDetail -> patternDetailViewModel.ComposeViewModel()
+                    is SearchingPatterns -> patternListViewModel.ComposeViewModel()
+                }
             }
         }
     }

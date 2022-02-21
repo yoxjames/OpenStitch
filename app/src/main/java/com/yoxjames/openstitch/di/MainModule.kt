@@ -9,6 +9,7 @@ import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.yoxjames.openstitch.BuildConfig
+<<<<<<< Updated upstream
 import com.yoxjames.openstitch.DetailScreenState
 import com.yoxjames.openstitch.ListScreenState
 import com.yoxjames.openstitch.LoadingScreenState
@@ -18,15 +19,15 @@ import com.yoxjames.openstitch.core.ViewEventFlowAdapter
 import com.yoxjames.openstitch.di.PatternsModule.PATTERNS_SCREEN
 import com.yoxjames.openstitch.list.StatefulListViewEvent
 import com.yoxjames.openstitch.navigation.Back
+=======
+import com.yoxjames.openstitch.navigation.HotPatterns
+>>>>>>> Stashed changes
 import com.yoxjames.openstitch.navigation.NavigationScreenState
 import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.navigation.NavigationStateFunction
 import com.yoxjames.openstitch.navigation.NavigationTransition
-import com.yoxjames.openstitch.navigation.OpenHotPatterns
-import com.yoxjames.openstitch.navigation.OpenPatternDetail
-import com.yoxjames.openstitch.navigation.PatternDetail
-import com.yoxjames.openstitch.navigation.SearchPattern
 import com.yoxjames.openstitch.oauth.OpenStitchAuthenticator
+<<<<<<< Updated upstream
 import com.yoxjames.openstitch.pattern.PatternFlowFactory
 import com.yoxjames.openstitch.pattern.PatternRow
 import com.yoxjames.openstitch.search.InactiveSearchState
@@ -37,6 +38,9 @@ import com.yoxjames.openstitch.ui.TopBarSearchViewEvent
 import com.yoxjames.openstitch.ui.core.BackPushed
 import com.yoxjames.openstitch.ui.core.ScreenViewEvent
 import com.yoxjames.openstitch.ui.core.ScreenViewState
+=======
+import com.yoxjames.openstitch.pattern.api.PatternApiService
+>>>>>>> Stashed changes
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -45,22 +49,16 @@ import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityScoped
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transform
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import net.openid.appauth.AuthorizationService
@@ -72,7 +70,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.io.File
-import javax.inject.Named
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -139,43 +136,16 @@ object MainModule {
 
     @Provides
     @ActivityScoped
-    fun provideViewEventFlowAdapter(): ViewEventFlowAdapter<@JvmSuppressWildcards ScreenViewEvent> {
-        return ViewEventFlowAdapter()
+    fun provideNavigationTransitions(): MutableSharedFlow<@JvmSuppressWildcards NavigationTransition> {
+        return MutableSharedFlow()
     }
 
     @Provides
     @ActivityScoped
-    fun provideStatefulViewEventAdapter(): ConnectableFlowHolder<@JvmSuppressWildcards StatefulListViewEvent> {
-        return ConnectableFlowHolder()
-    }
-
-    @Provides
-    @ActivityScoped
-    fun provideViewEventFlow(
-        viewEventFlowAdapter: ViewEventFlowAdapter<@JvmSuppressWildcards ScreenViewEvent>
-    ): Flow<@JvmSuppressWildcards ScreenViewEvent> {
-        return viewEventFlowAdapter.flow
-    }
-
-    @Provides
-    @ActivityScoped
-    fun provideNavigationTransitions(
-        statefulListViewEvents: Flow<@JvmSuppressWildcards StatefulListViewEvent>,
-        screenViewEvents: Flow<@JvmSuppressWildcards ScreenViewEvent>, // TODO: Maybe this doesn't belong here?
-        @Named(PATTERNS_SCREEN) searchStates: StateFlow<@JvmSuppressWildcards SearchState>,
+    fun provideNavigationTransitionsFlow(
+        bus: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>
     ): Flow<@JvmSuppressWildcards NavigationTransition> {
-        return merge(
-            statefulListViewEvents.map { it.state }
-                .filterIsInstance<PatternRow>()
-                .map { OpenPatternDetail(it.listPattern.id) },
-            searchStates.filter { it !is InactiveSearchState }.map { SearchPattern(it.text) },
-            screenViewEvents.filterIsInstance<BackPushed>().map { Back },
-            screenViewEvents.filterIsInstance<TopBarSearchViewEvent>()
-                .map { it.searchViewEvent }
-                .filterIsInstance<SearchBackClick>().map { Back },
-            screenViewEvents.filterIsInstance<TopBarBackClick>().map { Back },
-            flowOf(OpenHotPatterns),
-        ).flowOn(Dispatchers.IO)
+        return bus.asSharedFlow()
     }
 
     @Provides
@@ -183,7 +153,7 @@ object MainModule {
     fun provideNavigationStates(
         navigationTransitions: Flow<@JvmSuppressWildcards NavigationTransition>
     ): Flow<@JvmSuppressWildcards NavigationState> {
-        return navigationTransitions.scan(NavigationState(emptyList())) { state, transition ->
+        return navigationTransitions.scan(NavigationState(listOf(HotPatterns))) { state, transition ->
             NavigationStateFunction(state, transition)
         }
     }
@@ -204,7 +174,7 @@ object MainModule {
     @Provides
     @ActivityScoped
     fun provideNavigationScreenState(
-        navigationStates: Flow<@JvmSuppressWildcards NavigationState>
+        navigationStates: StateFlow<@JvmSuppressWildcards NavigationState>
     ): Flow<@JvmSuppressWildcards NavigationScreenState> {
         return navigationStates.map { it.navigationState }
     }
@@ -217,6 +187,7 @@ object MainModule {
 
     @Provides
     @ActivityScoped
+<<<<<<< Updated upstream
     fun provideAppState(
         coroutineScope: CoroutineScope,
         @Named(PATTERNS_SCREEN) listScreenStates: Flow<@JvmSuppressWildcards ListScreenState>,
@@ -260,5 +231,9 @@ object MainModule {
         connectableFlowHolder: ConnectableFlowHolder<@JvmSuppressWildcards StatefulListViewEvent>
     ): Flow<@JvmSuppressWildcards StatefulListViewEvent> {
         return connectableFlowHolder.flow
+=======
+    fun providePatternApiService(retrofit: Retrofit): PatternApiService {
+        return retrofit.create(PatternApiService::class.java)
+>>>>>>> Stashed changes
     }
 }

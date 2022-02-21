@@ -4,10 +4,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import com.yoxjames.openstitch.R
+<<<<<<< Updated upstream:app/src/main/java/com/yoxjames/openstitch/pattern/PatternFlowFactory.kt
 import com.yoxjames.openstitch.detail.ContentState
 import com.yoxjames.openstitch.detail.ContentViewState
 import com.yoxjames.openstitch.detail.EmptyContentViewState
 import com.yoxjames.openstitch.loading.LoadingState
+=======
+import com.yoxjames.openstitch.pattern.model.CraftType
+import com.yoxjames.openstitch.pattern.model.Free
+import com.yoxjames.openstitch.pattern.model.MonetaryPrice
+import com.yoxjames.openstitch.pattern.model.None
+import com.yoxjames.openstitch.pattern.state.LoadedPatternDetailState
+import com.yoxjames.openstitch.pattern.vs.PatternDetailViewState
+import com.yoxjames.openstitch.pattern.vs.PatternPhoto
+>>>>>>> Stashed changes:app/src/main/java/com/yoxjames/openstitch/pattern/vs/mapper/PatternDetailViewStateMapper.kt
 import com.yoxjames.openstitch.ui.generic.QuickInfoCardViewState
 import com.yoxjames.openstitch.ui.generic.QuickInfoComposableVectorIcon
 import com.yoxjames.openstitch.ui.generic.QuickInfoDrawableIcon
@@ -18,6 +28,7 @@ import java.text.NumberFormat
 import java.util.Currency
 import javax.inject.Inject
 
+<<<<<<< Updated upstream:app/src/main/java/com/yoxjames/openstitch/pattern/PatternFlowFactory.kt
 class PatternFlowFactory @Inject constructor(
     private val patternService: PatternService
 ) {
@@ -33,6 +44,12 @@ class PatternFlowFactory @Inject constructor(
 sealed interface PatternDetailState : ContentState {
     val loadingState: LoadingState
 }
+=======
+object PatternDetailViewStateMapper : (LoadedPatternDetailState) -> PatternDetailViewState {
+    override fun invoke(state: LoadedPatternDetailState): PatternDetailViewState {
+        return state.toViewState()
+    }
+>>>>>>> Stashed changes:app/src/main/java/com/yoxjames/openstitch/pattern/vs/mapper/PatternDetailViewStateMapper.kt
 
 object LoadingPatternState : PatternDetailState {
     override val viewState: ContentViewState = EmptyContentViewState
