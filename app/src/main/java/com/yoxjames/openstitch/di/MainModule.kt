@@ -16,6 +16,9 @@ import com.yoxjames.openstitch.navigation.NavigationStateFunction
 import com.yoxjames.openstitch.navigation.NavigationTransition
 import com.yoxjames.openstitch.oauth.OpenStitchAuthenticator
 import com.yoxjames.openstitch.pattern.api.PatternApiService
+import com.yoxjames.openstitch.pattern.ds.PatternListDataSource
+import com.yoxjames.openstitch.pattern.vm.PatternListScreenDataSource
+import com.yoxjames.openstitch.pattern.vm.PatternListScreenDataSourceImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -164,5 +167,14 @@ object MainModule {
     @ActivityScoped
     fun providePatternApiService(retrofit: Retrofit): PatternApiService {
         return retrofit.create(PatternApiService::class.java)
+    }
+
+    @Provides
+    @ActivityScoped
+    fun providePatternListScreenDataSource(
+        patternListDataSource: PatternListDataSource,
+        coroutineScope: CoroutineScope,
+    ): PatternListScreenDataSource {
+        return PatternListScreenDataSourceImpl(patternListDataSource, coroutineScope)
     }
 }

@@ -3,6 +3,7 @@ import Dependencies.activityComposeVersion
 import Dependencies.appAuthVersion
 import Dependencies.appCompatVersion
 import Dependencies.chuckerVersion
+import Dependencies.composeDestinationsVersion
 import Dependencies.composeVersion
 import Dependencies.coreKtxVersion
 import Dependencies.daggerVersion
@@ -24,6 +25,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("org.jlleitschuh.gradle.ktlint") version(Dependencies.ktLintVersion)
     id("org.jlleitschuh.gradle.ktlint-idea") version(Dependencies.ktLintVersion)
+    id("com.google.devtools.ksp") version(Dependencies.kspVersion)
 }
 
 val CLIENT_SECRET: String by project
@@ -80,6 +82,17 @@ android {
     }
 }
 
+kotlin {
+    sourceSets {
+        debug {
+            kotlin.srcDir("build/generated/ksp/debug/kotlin")
+        }
+        release {
+            kotlin.srcDir("build/generated/ksp/release/kotlin")
+        }
+    }
+}
+
 dependencies {
     implementation("androidx.core:core-ktx:$coreKtxVersion")
     implementation("androidx.appcompat:appcompat:$appCompatVersion")
@@ -107,6 +120,8 @@ dependencies {
     implementation("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
     debugImplementation("com.github.chuckerteam.chucker:library:$chuckerVersion")
     releaseImplementation("com.github.chuckerteam.chucker:library-no-op:$chuckerVersion")
+    implementation("io.github.raamcosta.compose-destinations:core:$composeDestinationsVersion")
+    ksp("io.github.raamcosta.compose-destinations:ksp:$composeDestinationsVersion")
 
     kapt("com.google.dagger:hilt-compiler:$daggerVersion")
     kapt("com.google.dagger:dagger-compiler:$daggerVersion")

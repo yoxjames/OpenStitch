@@ -17,7 +17,8 @@ import com.yoxjames.openstitch.navigation.PatternDetail
 import com.yoxjames.openstitch.navigation.SearchingPatterns
 import com.yoxjames.openstitch.oauth.AuthenticationManager
 import com.yoxjames.openstitch.pattern.vm.PatternDetailViewModel
-import com.yoxjames.openstitch.pattern.vm.PatternListViewModel
+import com.yoxjames.openstitch.pattern.vm.PatternListScreenDataSource
+import com.yoxjames.openstitch.pattern.vm.PatternListView
 import com.yoxjames.openstitch.ui.theme.OpenStitchTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +34,8 @@ class OpenStitchActivity : ComponentActivity() {
     @Inject lateinit var navigationScreenState: Flow<@JvmSuppressWildcards NavigationScreenState>
     @Inject lateinit var navigationState: StateFlow<@JvmSuppressWildcards NavigationState>
     @Inject lateinit var patternDetailViewModel: PatternDetailViewModel
-    @Inject lateinit var patternListViewModel: PatternListViewModel
+    @Inject lateinit var patternListScreenDataSource: PatternListScreenDataSource
+    @Inject lateinit var navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>
     @Inject lateinit var navigationBus: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>
 
     override fun onBackPressed() {
@@ -58,9 +60,15 @@ class OpenStitchActivity : ComponentActivity() {
             OpenStitchTheme {
                 when (navigationScreenState.collectAsState(HotPatterns).value) {
                     None -> Unit
-                    HotPatterns -> patternListViewModel.ComposeViewModel()
+                    HotPatterns -> PatternListView(
+                        navigationTransitions = navigationTransitions,
+                        patternListScreenDataSource = patternListScreenDataSource
+                    )
                     is PatternDetail -> patternDetailViewModel.ComposeViewModel()
-                    is SearchingPatterns -> patternListViewModel.ComposeViewModel()
+                    is SearchingPatterns -> PatternListView(
+                        navigationTransitions = navigationTransitions,
+                        patternListScreenDataSource = patternListScreenDataSource
+                    )
                 }
             }
         }
