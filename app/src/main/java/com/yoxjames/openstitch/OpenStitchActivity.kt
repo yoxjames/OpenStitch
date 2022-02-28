@@ -57,7 +57,9 @@ class OpenStitchActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        lifecycleScope.launch { viewsBus.emit(ViewScreen(navigationScreenState.value)) }
+        if (!authenticationManager.isAuthenticated) {
+            lifecycleScope.launch { viewsBus.emit(ViewScreen(navigationScreenState.value)) }
+        }
     }
 
     private fun attachUi() {
