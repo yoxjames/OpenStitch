@@ -9,11 +9,13 @@ import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.yoxjames.openstitch.BuildConfig
+import com.yoxjames.openstitch.loading.ViewScreen
 import com.yoxjames.openstitch.navigation.HotPatterns
 import com.yoxjames.openstitch.navigation.NavigationScreenState
 import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.navigation.NavigationStateFunction
 import com.yoxjames.openstitch.navigation.NavigationTransition
+import com.yoxjames.openstitch.navigation.None
 import com.yoxjames.openstitch.oauth.OpenStitchAuthenticator
 import com.yoxjames.openstitch.pattern.api.PatternApiService
 import dagger.Module
@@ -32,6 +34,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -149,9 +152,10 @@ object MainModule {
     @Provides
     @ActivityScoped
     fun provideNavigationScreenState(
-        navigationStates: StateFlow<@JvmSuppressWildcards NavigationState>
-    ): Flow<@JvmSuppressWildcards NavigationScreenState> {
-        return navigationStates.map { it.navigationState }
+        navigationStates: StateFlow<@JvmSuppressWildcards NavigationState>,
+        coroutineScope: CoroutineScope
+    ): StateFlow<@JvmSuppressWildcards NavigationScreenState> {
+        return navigationStates.map { it.navigationState }.stateIn(coroutineScope, SharingStarted.Eagerly, None)
     }
 
     @Provides
@@ -164,5 +168,20 @@ object MainModule {
     @ActivityScoped
     fun providePatternApiService(retrofit: Retrofit): PatternApiService {
         return retrofit.create(PatternApiService::class.java)
+    }
+
+    @Provides
+    @ActivityScoped
+    fun provideViewsBus(): MutableSharedFlow<@JvmSuppressWildcards ViewScreen> {
+        return MutableSharedFlow()
+    }
+
+    @Provides
+    @ActivityScoped
+    fun provideViews(
+        viewBus: MutableSharedFlow<@JvmSuppressWildcards ViewScreen>,
+        navigationScreenState: StateFlow<@JvmSuppressWildcards NavigationScreenState>
+    ): Flow<@JvmSuppressWildcards ViewScreen> {
+        return merge(viewBus, navigationScreenState.map { ViewScreen(it) })
     }
 }

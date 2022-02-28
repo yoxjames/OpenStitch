@@ -40,7 +40,7 @@ class PatternDetailDataSource @Inject constructor(
         },
         gauge = gauge.toString(),
         yardage = "",
-        weight = yarnWeight.name ?: "",
+        weight = yarnWeight?.name ?: "",
         craftType = craft.craftType,
         usNeedleSize = patternNeedleSizes.firstOrNull()?.us ?: "",
         metricNeedleSize = patternNeedleSizes.firstOrNull()?.prettyMetric ?: ""

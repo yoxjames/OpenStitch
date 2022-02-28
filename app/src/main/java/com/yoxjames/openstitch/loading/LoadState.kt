@@ -23,6 +23,9 @@ object NotLoaded : LoadState
  */
 data class Loaded<T>(
     val loadTime: Long,
-    val navigationScreenState: NavigationScreenState,
     val state: SharedFlow<T>
 ) : LoadState
+
+data class ViewScreen(
+    val navigationScreenState: NavigationScreenState
+)

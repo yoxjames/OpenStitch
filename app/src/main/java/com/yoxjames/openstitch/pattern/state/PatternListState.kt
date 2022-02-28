@@ -17,9 +17,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.scan
 
 data class PatternListState(
-    val listPatterns: List<ListPattern>,
-    val isHotPatterns: Boolean,
-    val loadingState: LoadingState
+    val listPatterns: List<ListPattern> = emptyList(),
+    val isHotPatterns: Boolean = true,
+    val loadingState: LoadingState = LoadingState.LOADING
 ) {
     private val titleState = when (isHotPatterns && listPatterns.isNotEmpty()) {
         true -> sequenceOf(TitleRowState("\uD83d\uDD25 Hot Patterns"), Divider)
@@ -42,9 +42,7 @@ data class PatternRow(
 }
 
 fun Flow<PatternListTransition>.asState(): Flow<PatternListState> {
-    return scan(
-        PatternListState(listPatterns = emptyList(), isHotPatterns = true, loadingState = LoadingState.LOADING)
-    ) { listState, transition ->
+    return scan(PatternListState()) { listState, transition ->
         when (transition) {
             LoadingPatterns -> PatternListState(
                 listPatterns = listState.listPatterns,

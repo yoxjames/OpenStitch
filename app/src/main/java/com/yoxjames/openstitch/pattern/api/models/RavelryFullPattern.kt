@@ -15,7 +15,7 @@ data class RavelryFullPattern(
     @SerialName("price") val price: Double?,
     @SerialName("currency") val currency: String?,
     @SerialName("free") val free: Boolean,
-    @SerialName("yarn_weight") val yarnWeight: RavelryYarnWeight,
+    @SerialName("yarn_weight") val yarnWeight: RavelryYarnWeight?,
     @SerialName("pattern_needle_sizes") val patternNeedleSizes: List<RavelryPatternNeedleSize>,
     @SerialName("craft") val craft: RavelryCraft
 )

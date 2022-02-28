@@ -22,7 +22,6 @@ import com.yoxjames.openstitch.ui.TopBarBackClick
 import com.yoxjames.openstitch.ui.TopBarViewState
 import com.yoxjames.openstitch.ui.core.OpenStitchScaffold
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +36,7 @@ import javax.inject.Inject
 class PatternDetailViewModel @Inject constructor(
     private val patternDetailDataSource: PatternDetailDataSource,
     private val navigationStates: StateFlow<@JvmSuppressWildcards NavigationState>,
-    private val navigationScreenState: Flow<@JvmSuppressWildcards NavigationScreenState>,
+    private val navigationScreenState: StateFlow<@JvmSuppressWildcards NavigationScreenState>,
     private val navigationBus: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
     private val coroutineScope: CoroutineScope
 ) {

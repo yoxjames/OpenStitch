@@ -4,9 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.pager.ExperimentalPagerApi
+import com.yoxjames.openstitch.loading.ViewScreen
 import com.yoxjames.openstitch.navigation.Back
 import com.yoxjames.openstitch.navigation.HotPatterns
 import com.yoxjames.openstitch.navigation.NavigationScreenState
@@ -20,7 +22,6 @@ import com.yoxjames.openstitch.pattern.vm.PatternDetailViewModel
 import com.yoxjames.openstitch.pattern.vm.PatternListViewModel
 import com.yoxjames.openstitch.ui.theme.OpenStitchTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,11 +31,12 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class OpenStitchActivity : ComponentActivity() {
     @Inject lateinit var authenticationManager: AuthenticationManager
-    @Inject lateinit var navigationScreenState: Flow<@JvmSuppressWildcards NavigationScreenState>
+    @Inject lateinit var navigationScreenState: StateFlow<@JvmSuppressWildcards NavigationScreenState>
     @Inject lateinit var navigationState: StateFlow<@JvmSuppressWildcards NavigationState>
     @Inject lateinit var patternDetailViewModel: PatternDetailViewModel
     @Inject lateinit var patternListViewModel: PatternListViewModel
     @Inject lateinit var navigationBus: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>
+    @Inject lateinit var viewsBus: MutableSharedFlow<@JvmSuppressWildcards ViewScreen>
 
     override fun onBackPressed() {
         if (navigationState.value.isBackAvailable) {
@@ -53,14 +55,22 @@ class OpenStitchActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (!authenticationManager.isAuthenticated) {
+            lifecycleScope.launch { viewsBus.emit(ViewScreen(navigationScreenState.value)) }
+        }
+    }
+
     private fun attachUi() {
         setContent {
+            val listState = rememberLazyListState()
             OpenStitchTheme {
                 when (navigationScreenState.collectAsState(HotPatterns).value) {
                     None -> Unit
-                    HotPatterns -> patternListViewModel.ComposeViewModel()
+                    HotPatterns -> patternListViewModel.ComposeViewModel(listState)
                     is PatternDetail -> patternDetailViewModel.ComposeViewModel()
-                    is SearchingPatterns -> patternListViewModel.ComposeViewModel()
+                    is SearchingPatterns -> patternListViewModel.ComposeViewModel(listState)
                 }
             }
         }
