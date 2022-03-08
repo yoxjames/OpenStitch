@@ -55,7 +55,7 @@ class PatternDetailViewModel @Inject constructor(
         }.stateIn(coroutineScope, SharingStarted.Lazily, PatternDetailScreenState())
 
     @Composable
-    fun ComposeViewModel() {
+    fun Render() {
         val state: PatternDetailScreenState = states.collectAsState().value
         val viewState = DetailScreenViewStateMapper(state)
         with(viewState) {

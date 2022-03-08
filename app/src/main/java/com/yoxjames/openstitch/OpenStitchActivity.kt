@@ -20,6 +20,7 @@ import com.yoxjames.openstitch.navigation.SearchingPatterns
 import com.yoxjames.openstitch.oauth.AuthenticationManager
 import com.yoxjames.openstitch.pattern.vm.PatternDetailViewModel
 import com.yoxjames.openstitch.pattern.vm.PatternListViewModel
+import com.yoxjames.openstitch.pattern.vm.PatternListView
 import com.yoxjames.openstitch.ui.theme.OpenStitchTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -68,9 +69,9 @@ class OpenStitchActivity : ComponentActivity() {
             OpenStitchTheme {
                 when (navigationScreenState.collectAsState(HotPatterns).value) {
                     None -> Unit
-                    HotPatterns -> patternListViewModel.ComposeViewModel(listState)
-                    is PatternDetail -> patternDetailViewModel.ComposeViewModel()
-                    is SearchingPatterns -> patternListViewModel.ComposeViewModel(listState)
+                    HotPatterns -> PatternListView(listState = listState, patternListViewModel = patternListViewModel)
+                    is PatternDetail -> patternDetailViewModel.Render()
+                    is SearchingPatterns -> PatternListView(listState = listState, patternListViewModel = patternListViewModel)
                 }
             }
         }

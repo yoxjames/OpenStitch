@@ -4,7 +4,7 @@ import com.yoxjames.openstitch.navigation.NavigationScreenState
 import kotlinx.coroutines.flow.SharedFlow
 
 /**
- * This is a simple state model to model cacheing behavior for any object. This is essentially
+ * This is a simple state model to model caching behavior for any object. This is essentially
  * a container state.
  */
 sealed interface LoadState
@@ -23,7 +23,7 @@ object NotLoaded : LoadState
  */
 data class Loaded<T>(
     val loadTime: Long,
-    val state: SharedFlow<T>
+    val state: T
 ) : LoadState
 
 data class ViewScreen(

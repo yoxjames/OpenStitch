@@ -3,6 +3,8 @@ package com.yoxjames.openstitch.pattern.vm
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.yoxjames.openstitch.list.Click
 import com.yoxjames.openstitch.loading.LoadState
 import com.yoxjames.openstitch.loading.Loaded
@@ -28,13 +30,22 @@ import com.yoxjames.openstitch.search.SearchViewStateMapper
 import com.yoxjames.openstitch.search.TopBarViewSearchViewEventTransitionMapper
 import com.yoxjames.openstitch.search.TypingSearchState
 import com.yoxjames.openstitch.ui.DefaultTopBarViewState
+import com.yoxjames.openstitch.ui.SearchBackClick
+import com.yoxjames.openstitch.ui.SearchClick
+import com.yoxjames.openstitch.ui.SearchEntered
+import com.yoxjames.openstitch.ui.SearchTextChanged
 import com.yoxjames.openstitch.ui.SearchTopBarViewState
+import com.yoxjames.openstitch.ui.TopBarBackClick
+import com.yoxjames.openstitch.ui.TopBarSearchViewEvent
 import com.yoxjames.openstitch.ui.TopBarViewEvent
 import com.yoxjames.openstitch.ui.core.OpenStitchScaffold
+import com.yoxjames.openstitch.ui.generic.Keyboard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.emitAll
@@ -45,27 +56,34 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
-class PatternListViewModel @Inject constructor(
+private val searchConfiguration = SearchConfiguration("Search Patterns")
+
+private fun SearchState.mapToTopBarViewState() = when (this) {
+    is InactiveSearchState -> DefaultTopBarViewState(isSearchAvailable = true, isBackAvailable = false)
+    is EnteredSearchState, is FocusedSearchState, is TypingSearchState -> SearchTopBarViewState(SearchViewStateMapper(this))
+}
+
+interface PatternListViewModel {
+    val searchState: StateFlow<SearchState>
+    val state: StateFlow<PatternListState>
+    val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>
+    val _topBarViewEvents: MutableSharedFlow<TopBarViewEvent>
+}
+
+class PatternListViewModelImpl(
     private val patternListDataSource: PatternListDataSource,
     private val coroutineScope: CoroutineScope,
-    private val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
-    private val views: Flow<@JvmSuppressWildcards ViewScreen>
-) {
+    override val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
+    private val views: Flow<@JvmSuppressWildcards ViewScreen>,
+) : PatternListViewModel {
     companion object {
-        private val searchConfiguration = SearchConfiguration("Search Patterns")
+        private const val CACHE_TIME_MILLIS = 1000 * 60 * 1
     }
-    private val _topBarViewEvents = MutableSharedFlow<TopBarViewEvent>()
-
-    private val searchState = _topBarViewEvents.transform {
-        TopBarViewSearchViewEventTransitionMapper(it).forEach { emit(it) }
-    }.searchState.stateIn(coroutineScope, SharingStarted.Lazily, InactiveSearchState(searchConfiguration))
-
     private val Flow<SearchTransition>.searchState get() = scan<SearchTransition, SearchState>(
         InactiveSearchState(searchConfiguration)
     ) { state, transition -> SearchScanFunction(state, transition) }
-
     private val _state get() = searchState.distinctUntilChangedBy { it.text }
         .transform {
             if (it.text.isBlank()) {
@@ -77,47 +95,49 @@ class PatternListViewModel @Inject constructor(
             }
         }.asState()
 
-    val state = views.map { it.navigationScreenState }.filterIsInstance<PatternsScreen>().scan<PatternsScreen, LoadState>(NotLoaded) { acc, it ->
-        if (acc is NotLoaded || (acc is Loaded<*> && acc.loadTime + 1000 * 60 * 1 < System.currentTimeMillis())) {
-            Loaded(loadTime = System.currentTimeMillis(), state = _state.shareIn(coroutineScope, SharingStarted.Lazily, replay = 1))
-        } else {
-            acc
-        }
-    }.filterIsInstance<Loaded<PatternListState>>()
-        .distinctUntilChanged()
-        .transformLatest { emitAll(it.state) }
-        .shareIn(coroutineScope, SharingStarted.Lazily, replay = 1)
+    override val _topBarViewEvents: MutableSharedFlow<TopBarViewEvent> = MutableSharedFlow()
 
-    @Composable
-    fun ComposeViewModel(listState: LazyListState) {
-        val state = this.state.collectAsState(
-            initial = PatternListState(
-                listPatterns = emptyList(),
-                isHotPatterns = true,
-                loadingState = LoadingState.LOADING
-            )
-        ).value
-        val searchState = searchState.collectAsState()
+    override val searchState: StateFlow<SearchState>
+        get() = _topBarViewEvents.transform { TopBarViewSearchViewEventTransitionMapper(it).forEach { emit(it) } }
+            .searchState
+            .stateIn(coroutineScope, SharingStarted.Lazily, InactiveSearchState(searchConfiguration))
 
-        OpenStitchScaffold(
-            onTopBarViewEvent = { _topBarViewEvents.emit(it) },
-            topBarViewState = searchState.value.mapToTopBarViewState(),
-            loadingViewState = state.loadingState.viewState
-        ) {
-            state.listState.viewState.Composable(
-                scrollState = listState,
-                viewEventListener = {
-                    val rowState = state.listState.items[it.pos]
-                    if (it.event is Click && rowState is PatternRow) {
-                        navigationTransitions.emit(OpenPatternDetail(rowState.listPattern.id))
-                    }
+    override val state: StateFlow<PatternListState>
+        get() = views.map { it.navigationScreenState }
+            .filterIsInstance<PatternsScreen>()
+            .scan<PatternsScreen, LoadState>(NotLoaded) { acc, _ ->
+                if (acc is NotLoaded || (acc is Loaded<*> && acc.loadTime + CACHE_TIME_MILLIS < System.currentTimeMillis())) {
+                    Loaded(loadTime = System.currentTimeMillis(), state = acc)
+                } else {
+                    acc
                 }
-            )
-        }
-    }
+            }
+            .filterIsInstance<Loaded<PatternListState>>()
+            .map { it.state }
+            .stateIn(coroutineScope, SharingStarted.Lazily, initialValue = PatternListState.DEFAULT)
+}
 
-    private fun SearchState.mapToTopBarViewState() = when (this) {
-        is InactiveSearchState -> DefaultTopBarViewState(isSearchAvailable = true, isBackAvailable = false)
-        is EnteredSearchState, is FocusedSearchState, is TypingSearchState -> SearchTopBarViewState(SearchViewStateMapper(this))
+@Composable
+fun PatternListView(listState: LazyListState, patternListViewModel: PatternListViewModel) {
+    val state = patternListViewModel.state.collectAsState(initial = PatternListState.DEFAULT).value
+    val searchState = patternListViewModel.searchState.collectAsState()
+
+    Keyboard(show = state.showKeyboard)
+
+    OpenStitchScaffold(
+        onTopBarViewEvent = { patternListViewModel._topBarViewEvents.emit(it) },
+        topBarViewState = searchState.value.mapToTopBarViewState(),
+        loadingViewState = state.loadingState.viewState
+    ) {
+        state.listState.viewState.Composable(
+            scrollState = listState,
+            viewEventListener = {
+                val rowState = state.listState.items[it.pos]
+                if (it.event is Click && rowState is PatternRow) {
+                    patternListViewModel.navigationTransitions.emit(OpenPatternDetail(rowState.listPattern.id))
+                }
+            }
+        )
     }
 }
+
