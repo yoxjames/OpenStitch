@@ -15,6 +15,7 @@ import Dependencies.materialVersion
 import Dependencies.okHttpVersion
 import Dependencies.retrofitKotlinSerializationConverterVersion
 import Dependencies.retrofitVersion
+import Dependencies.timberVersion
 
 plugins {
     id("com.android.application")
@@ -105,6 +106,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-pager:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-pager-indicators:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
+    implementation("com.jakewharton.timber:timber:$timberVersion")
     debugImplementation("com.github.chuckerteam.chucker:library:$chuckerVersion")
     releaseImplementation("com.github.chuckerteam.chucker:library-no-op:$chuckerVersion")
 

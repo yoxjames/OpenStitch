@@ -21,4 +21,5 @@ object Dependencies {
     const val retrofitVersion = "2.9.0"
     const val jUnitVersion = "4.13.2"
     const val ktLintVersion = "10.2.1"
+    const val timberVersion = "5.0.1"
 }

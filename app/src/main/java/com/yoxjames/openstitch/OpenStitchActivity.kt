@@ -21,12 +21,20 @@ import com.yoxjames.openstitch.oauth.AuthenticationManager
 import com.yoxjames.openstitch.pattern.vm.PatternDetailViewModel
 import com.yoxjames.openstitch.pattern.vm.PatternListViewModel
 import com.yoxjames.openstitch.pattern.vm.PatternListView
+import com.yoxjames.openstitch.ui.SearchBackClick
+import com.yoxjames.openstitch.ui.SearchClick
+import com.yoxjames.openstitch.ui.SearchEntered
+import com.yoxjames.openstitch.ui.SearchTextChanged
+import com.yoxjames.openstitch.ui.TopBarBackClick
+import com.yoxjames.openstitch.ui.TopBarSearchViewEvent
 import com.yoxjames.openstitch.ui.theme.OpenStitchTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collect
+import timber.log.Timber
 
 @ExperimentalPagerApi
 @AndroidEntryPoint
@@ -64,6 +72,20 @@ class OpenStitchActivity : ComponentActivity() {
     }
 
     private fun attachUi() {
+        lifecycleScope.launch {
+            patternListViewModel._topBarViewEvents.collect { topBarViewEvent ->
+                when (topBarViewEvent) {
+                    SearchClick,
+                    TopBarBackClick -> Unit
+                    is TopBarSearchViewEvent -> when (topBarViewEvent.searchViewEvent) {
+                        SearchBackClick -> Unit
+                        SearchEntered -> navigationBus.emit(Back)
+                        is SearchTextChanged -> Unit
+                    }
+                }
+            }
+        }
+
         setContent {
             val listState = rememberLazyListState()
             OpenStitchTheme {

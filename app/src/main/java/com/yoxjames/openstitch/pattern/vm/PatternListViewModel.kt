@@ -3,12 +3,9 @@ package com.yoxjames.openstitch.pattern.vm
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.yoxjames.openstitch.list.Click
 import com.yoxjames.openstitch.loading.LoadState
 import com.yoxjames.openstitch.loading.Loaded
-import com.yoxjames.openstitch.loading.LoadingState
 import com.yoxjames.openstitch.loading.NotLoaded
 import com.yoxjames.openstitch.loading.ViewScreen
 import com.yoxjames.openstitch.navigation.NavigationTransition
@@ -30,13 +27,7 @@ import com.yoxjames.openstitch.search.SearchViewStateMapper
 import com.yoxjames.openstitch.search.TopBarViewSearchViewEventTransitionMapper
 import com.yoxjames.openstitch.search.TypingSearchState
 import com.yoxjames.openstitch.ui.DefaultTopBarViewState
-import com.yoxjames.openstitch.ui.SearchBackClick
-import com.yoxjames.openstitch.ui.SearchClick
-import com.yoxjames.openstitch.ui.SearchEntered
-import com.yoxjames.openstitch.ui.SearchTextChanged
 import com.yoxjames.openstitch.ui.SearchTopBarViewState
-import com.yoxjames.openstitch.ui.TopBarBackClick
-import com.yoxjames.openstitch.ui.TopBarSearchViewEvent
 import com.yoxjames.openstitch.ui.TopBarViewEvent
 import com.yoxjames.openstitch.ui.core.OpenStitchScaffold
 import com.yoxjames.openstitch.ui.generic.Keyboard
@@ -45,18 +36,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
-import kotlinx.coroutines.flow.transformLatest
-import kotlinx.coroutines.launch
+import timber.log.Timber
 
 private val searchConfiguration = SearchConfiguration("Search Patterns")
 
