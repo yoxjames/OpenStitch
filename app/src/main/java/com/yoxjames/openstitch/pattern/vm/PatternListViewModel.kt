@@ -36,13 +36,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.transformLatest
 import timber.log.Timber
 
 private val searchConfiguration = SearchConfiguration("Search Patterns")
@@ -92,15 +95,16 @@ class PatternListViewModelImpl(
     override val state: StateFlow<PatternListState>
         get() = views.map { it.navigationScreenState }
             .filterIsInstance<PatternsScreen>()
-            .scan<PatternsScreen, LoadState>(NotLoaded) { acc, _ ->
-                if (acc is NotLoaded || (acc is Loaded<*> && acc.loadTime + CACHE_TIME_MILLIS < System.currentTimeMillis())) {
-                    Loaded(loadTime = System.currentTimeMillis(), state = acc)
+            .scan<PatternsScreen, LoadState>(NotLoaded) { acc, it ->
+                if (acc is NotLoaded || (acc is Loaded<*> && acc.loadTime + 1000 * 60 * 1 < System.currentTimeMillis())) {
+                    Loaded(loadTime = System.currentTimeMillis(), state = _state.shareIn(coroutineScope, SharingStarted.Lazily, replay = 1))
                 } else {
                     acc
                 }
             }
             .filterIsInstance<Loaded<PatternListState>>()
-            .map { it.state }
+            .distinctUntilChanged()
+            .transformLatest { emitAll(it.state) }
             .stateIn(coroutineScope, SharingStarted.Lazily, initialValue = PatternListState.DEFAULT)
 }
 
