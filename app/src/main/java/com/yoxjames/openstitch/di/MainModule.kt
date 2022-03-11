@@ -18,6 +18,9 @@ import com.yoxjames.openstitch.navigation.NavigationTransition
 import com.yoxjames.openstitch.navigation.None
 import com.yoxjames.openstitch.oauth.OpenStitchAuthenticator
 import com.yoxjames.openstitch.pattern.api.PatternApiService
+import com.yoxjames.openstitch.pattern.ds.PatternListDataSource
+import com.yoxjames.openstitch.pattern.vm.PatternListViewModel
+import com.yoxjames.openstitch.pattern.vm.PatternListViewModelImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -183,5 +186,16 @@ object MainModule {
         navigationScreenState: StateFlow<@JvmSuppressWildcards NavigationScreenState>
     ): Flow<@JvmSuppressWildcards ViewScreen> {
         return merge(viewBus, navigationScreenState.map { ViewScreen(it) })
+    }
+
+    @Provides
+    @ActivityScoped
+    fun providePatternListViewModel(
+        patternListDataSource: PatternListDataSource,
+        coroutineScope: CoroutineScope,
+        navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
+        views: Flow<@JvmSuppressWildcards ViewScreen>
+    ): PatternListViewModel {
+        return PatternListViewModelImpl(patternListDataSource, coroutineScope, navigationTransitions, views)
     }
 }
