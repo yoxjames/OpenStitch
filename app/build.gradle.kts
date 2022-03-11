@@ -15,6 +15,7 @@ import Dependencies.materialVersion
 import Dependencies.okHttpVersion
 import Dependencies.retrofitKotlinSerializationConverterVersion
 import Dependencies.retrofitVersion
+import Dependencies.timberVersion
 
 plugins {
     id("com.android.application")
@@ -100,6 +101,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("com.squareup.okhttp3:okhttp:$okHttpVersion")
     implementation("com.squareup.okhttp3:logging-interceptor:$okHttpVersion")
+    implementation("com.jakewharton.timber:timber:$timberVersion")
     implementation("com.github.skydoves:landscapist-glide:$landscapistVersion")
     implementation("com.google.accompanist:accompanist-placeholder:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-pager:$accompanistVersion")

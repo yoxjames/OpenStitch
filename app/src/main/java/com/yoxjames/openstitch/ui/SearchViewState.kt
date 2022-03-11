@@ -3,6 +3,8 @@ package com.yoxjames.openstitch.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -20,9 +22,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import com.yoxjames.openstitch.core.ViewEvent
 import com.yoxjames.openstitch.core.ViewEventListener
@@ -35,12 +40,14 @@ data class SearchViewState(
     val hint: String,
     val text: String,
 ) : ViewState {
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun Composable(viewEventListener: ViewEventListener<SearchViewEvent>) {
         var text by remember { mutableStateOf(text) }
         val coroutineScope = rememberCoroutineScope()
         var currentJob by remember { mutableStateOf<Job?>(null) }
         val focusRequester = remember { FocusRequester() }
+        val keyboard = LocalSoftwareKeyboardController.current
 
         fun onValueChange(value: String) {
             if (!value.contains("\n")) text = value
@@ -89,7 +96,9 @@ data class SearchViewState(
                             )
                         }
                     },
-                    onValueChange = ::onValueChange
+                    onValueChange = ::onValueChange,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { keyboard?.hide() })
                 )
             }
         }

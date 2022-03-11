@@ -19,6 +19,7 @@ object Dependencies {
     const val lifecycleVersion = "2.4.1"
     const val okHttpVersion = "4.9.3"
     const val retrofitVersion = "2.9.0"
+    const val timberVersion = "5.0.1"
     const val jUnitVersion = "4.13.2"
     const val ktLintVersion = "10.2.1"
 }

@@ -6,7 +6,6 @@ import androidx.compose.runtime.collectAsState
 import com.yoxjames.openstitch.list.Click
 import com.yoxjames.openstitch.loading.LoadState
 import com.yoxjames.openstitch.loading.Loaded
-import com.yoxjames.openstitch.loading.LoadingState
 import com.yoxjames.openstitch.loading.NotLoaded
 import com.yoxjames.openstitch.loading.ViewScreen
 import com.yoxjames.openstitch.navigation.NavigationTransition
@@ -34,7 +33,9 @@ import com.yoxjames.openstitch.ui.core.OpenStitchScaffold
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.emitAll
@@ -45,8 +46,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 
 interface PatternListViewModel {
     val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>
@@ -98,7 +97,6 @@ class PatternListViewModelImpl(
         .distinctUntilChanged()
         .transformLatest { emitAll(it.state) }
         .shareIn(coroutineScope, SharingStarted.Lazily, replay = 1)
-
 }
 
 fun SearchState.mapToTopBarViewState() = when (this) {
@@ -108,13 +106,7 @@ fun SearchState.mapToTopBarViewState() = when (this) {
 
 @Composable
 fun PatternListView(listState: LazyListState, patternListViewModel: PatternListViewModel) {
-    val state = patternListViewModel.state.collectAsState(
-        initial = PatternListState(
-            listPatterns = emptyList(),
-            isHotPatterns = true,
-            loadingState = LoadingState.LOADING
-        )
-    ).value
+    val state = patternListViewModel.state.collectAsState(initial = PatternListState.DEFAULT).value
     val searchState = patternListViewModel.searchState.collectAsState()
 
     OpenStitchScaffold(
@@ -133,4 +125,3 @@ fun PatternListView(listState: LazyListState, patternListViewModel: PatternListV
         )
     }
 }
-
