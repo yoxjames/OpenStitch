@@ -33,7 +33,6 @@ import com.yoxjames.openstitch.ui.core.OpenStitchScaffold
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -51,7 +50,7 @@ interface PatternListViewModel {
     val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>
     val _topBarViewEvents: MutableSharedFlow<TopBarViewEvent>
     val searchState: StateFlow<SearchState>
-    val state: SharedFlow<PatternListState>
+    val state: StateFlow<PatternListState>
 }
 
 class PatternListViewModelImpl(
@@ -86,7 +85,7 @@ class PatternListViewModelImpl(
             }
         }.asState()
 
-    override val state: SharedFlow<PatternListState> = views.map { it.navigationScreenState }
+    override val state: StateFlow<PatternListState> = views.map { it.navigationScreenState }
         .filterIsInstance<PatternsScreen>().scan<PatternsScreen, LoadState>(NotLoaded) { acc, it ->
             if (acc is NotLoaded || (acc is Loaded<*> && acc.loadTime + 1000 * 60 * 1 < System.currentTimeMillis())) {
                 Loaded(loadTime = System.currentTimeMillis(), state = _state.shareIn(coroutineScope, SharingStarted.Lazily, replay = 1))
@@ -96,7 +95,7 @@ class PatternListViewModelImpl(
         }.filterIsInstance<Loaded<PatternListState>>()
         .distinctUntilChanged()
         .transformLatest { emitAll(it.state) }
-        .shareIn(coroutineScope, SharingStarted.Lazily, replay = 1)
+        .stateIn(coroutineScope, SharingStarted.Lazily, initialValue = PatternListState.DEFAULT)
 }
 
 fun SearchState.mapToTopBarViewState() = when (this) {
