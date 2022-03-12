@@ -30,6 +30,7 @@ import com.yoxjames.openstitch.ui.DefaultTopBarViewState
 import com.yoxjames.openstitch.ui.SearchTopBarViewState
 import com.yoxjames.openstitch.ui.TopBarViewEvent
 import com.yoxjames.openstitch.ui.core.OpenStitchScaffold
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -46,25 +47,18 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
 
-interface PatternListViewModel {
-    val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>
-    val _topBarViewEvents: MutableSharedFlow<TopBarViewEvent>
-    val searchState: StateFlow<SearchState>
-    val state: StateFlow<PatternListState>
-}
-
-class PatternListViewModelImpl(
+class PatternListViewModel @Inject constructor(
     private val patternListDataSource: PatternListDataSource,
     private val coroutineScope: CoroutineScope,
-    override val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
+    val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
     private val views: Flow<@JvmSuppressWildcards ViewScreen>
-) : PatternListViewModel {
+) {
     companion object {
         private val searchConfiguration = SearchConfiguration("Search Patterns")
     }
-    override val _topBarViewEvents: MutableSharedFlow<TopBarViewEvent> = MutableSharedFlow<TopBarViewEvent>()
+    val _topBarViewEvents: MutableSharedFlow<TopBarViewEvent> = MutableSharedFlow<TopBarViewEvent>()
 
-    override val searchState: StateFlow<SearchState> = _topBarViewEvents.transform { topBarViewEvent ->
+    val searchState: StateFlow<SearchState> = _topBarViewEvents.transform { topBarViewEvent ->
         TopBarViewSearchViewEventTransitionMapper(topBarViewEvent)
             .forEach { searchTransition -> emit(searchTransition) }
     }.mapToSearchState
@@ -85,7 +79,7 @@ class PatternListViewModelImpl(
             }
         }.asState()
 
-    override val state: StateFlow<PatternListState> = views.map { it.navigationScreenState }
+    val state: StateFlow<PatternListState> = views.map { it.navigationScreenState }
         .filterIsInstance<PatternsScreen>().scan<PatternsScreen, LoadState>(NotLoaded) { acc, it ->
             if (acc is NotLoaded || (acc is Loaded<*> && acc.loadTime + 1000 * 60 * 1 < System.currentTimeMillis())) {
                 Loaded(loadTime = System.currentTimeMillis(), state = _state.shareIn(coroutineScope, SharingStarted.Lazily, replay = 1))

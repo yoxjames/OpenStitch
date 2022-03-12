@@ -18,9 +18,6 @@ import com.yoxjames.openstitch.navigation.NavigationTransition
 import com.yoxjames.openstitch.navigation.None
 import com.yoxjames.openstitch.oauth.OpenStitchAuthenticator
 import com.yoxjames.openstitch.pattern.api.PatternApiService
-import com.yoxjames.openstitch.pattern.ds.PatternListDataSource
-import com.yoxjames.openstitch.pattern.vm.PatternListViewModel
-import com.yoxjames.openstitch.pattern.vm.PatternListViewModelImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,6 +25,7 @@ import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityScoped
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -50,7 +48,6 @@ import okhttp3.Cache
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import java.io.File
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -186,16 +183,5 @@ object MainModule {
         navigationScreenState: StateFlow<@JvmSuppressWildcards NavigationScreenState>
     ): Flow<@JvmSuppressWildcards ViewScreen> {
         return merge(viewBus, navigationScreenState.map { ViewScreen(it) })
-    }
-
-    @Provides
-    @ActivityScoped
-    fun providePatternListViewModel(
-        patternListDataSource: PatternListDataSource,
-        coroutineScope: CoroutineScope,
-        navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
-        views: Flow<@JvmSuppressWildcards ViewScreen>
-    ): PatternListViewModel {
-        return PatternListViewModelImpl(patternListDataSource, coroutineScope, navigationTransitions, views)
     }
 }
