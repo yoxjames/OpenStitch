@@ -1,7 +1,7 @@
 object Dependencies {
     const val kotlinVersion = "1.5.31"
 
-    const val gradleVersion = "7.1.1"
+    const val gradleVersion = "7.1.2"
 
     const val accompanistVersion = "0.22.0-rc"
     const val activityComposeVersion = "1.4.0"
@@ -19,6 +19,7 @@ object Dependencies {
     const val lifecycleVersion = "2.4.1"
     const val okHttpVersion = "4.9.3"
     const val retrofitVersion = "2.9.0"
+    const val timberVersion = "5.0.1"
     const val jUnitVersion = "4.13.2"
     const val ktLintVersion = "10.2.1"
 }

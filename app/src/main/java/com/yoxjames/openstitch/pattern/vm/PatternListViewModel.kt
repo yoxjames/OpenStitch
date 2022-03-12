@@ -6,7 +6,6 @@ import androidx.compose.runtime.collectAsState
 import com.yoxjames.openstitch.list.Click
 import com.yoxjames.openstitch.loading.LoadState
 import com.yoxjames.openstitch.loading.Loaded
-import com.yoxjames.openstitch.loading.LoadingState
 import com.yoxjames.openstitch.loading.NotLoaded
 import com.yoxjames.openstitch.loading.ViewScreen
 import com.yoxjames.openstitch.navigation.NavigationTransition
@@ -31,10 +30,12 @@ import com.yoxjames.openstitch.ui.DefaultTopBarViewState
 import com.yoxjames.openstitch.ui.SearchTopBarViewState
 import com.yoxjames.openstitch.ui.TopBarViewEvent
 import com.yoxjames.openstitch.ui.core.OpenStitchScaffold
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.emitAll
@@ -45,24 +46,25 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
-import javax.inject.Inject
 
 class PatternListViewModel @Inject constructor(
     private val patternListDataSource: PatternListDataSource,
     private val coroutineScope: CoroutineScope,
-    private val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
+    val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
     private val views: Flow<@JvmSuppressWildcards ViewScreen>
 ) {
     companion object {
         private val searchConfiguration = SearchConfiguration("Search Patterns")
     }
-    private val _topBarViewEvents = MutableSharedFlow<TopBarViewEvent>()
+    val _topBarViewEvents: MutableSharedFlow<TopBarViewEvent> = MutableSharedFlow<TopBarViewEvent>()
 
-    private val searchState = _topBarViewEvents.transform {
-        TopBarViewSearchViewEventTransitionMapper(it).forEach { emit(it) }
-    }.searchState.stateIn(coroutineScope, SharingStarted.Lazily, InactiveSearchState(searchConfiguration))
+    val searchState: StateFlow<SearchState> = _topBarViewEvents.transform { topBarViewEvent ->
+        TopBarViewSearchViewEventTransitionMapper(topBarViewEvent)
+            .forEach { searchTransition -> emit(searchTransition) }
+    }.mapToSearchState
+        .stateIn(coroutineScope, SharingStarted.Lazily, InactiveSearchState(searchConfiguration))
 
-    private val Flow<SearchTransition>.searchState get() = scan<SearchTransition, SearchState>(
+    private val Flow<SearchTransition>.mapToSearchState get() = scan<SearchTransition, SearchState>(
         InactiveSearchState(searchConfiguration)
     ) { state, transition -> SearchScanFunction(state, transition) }
 
@@ -77,47 +79,42 @@ class PatternListViewModel @Inject constructor(
             }
         }.asState()
 
-    val state = views.map { it.navigationScreenState }.filterIsInstance<PatternsScreen>().scan<PatternsScreen, LoadState>(NotLoaded) { acc, it ->
-        if (acc is NotLoaded || (acc is Loaded<*> && acc.loadTime + 1000 * 60 * 1 < System.currentTimeMillis())) {
-            Loaded(loadTime = System.currentTimeMillis(), state = _state.shareIn(coroutineScope, SharingStarted.Lazily, replay = 1))
-        } else {
-            acc
-        }
-    }.filterIsInstance<Loaded<PatternListState>>()
+    val state: StateFlow<PatternListState> = views.map { it.navigationScreenState }
+        .filterIsInstance<PatternsScreen>().scan<PatternsScreen, LoadState>(NotLoaded) { acc, it ->
+            if (acc is NotLoaded || (acc is Loaded<*> && acc.loadTime + 1000 * 60 * 1 < System.currentTimeMillis())) {
+                Loaded(loadTime = System.currentTimeMillis(), state = _state.shareIn(coroutineScope, SharingStarted.Lazily, replay = 1))
+            } else {
+                acc
+            }
+        }.filterIsInstance<Loaded<PatternListState>>()
         .distinctUntilChanged()
         .transformLatest { emitAll(it.state) }
-        .shareIn(coroutineScope, SharingStarted.Lazily, replay = 1)
+        .stateIn(coroutineScope, SharingStarted.Lazily, initialValue = PatternListState.DEFAULT)
+}
 
-    @Composable
-    fun ComposeViewModel(listState: LazyListState) {
-        val state = this.state.collectAsState(
-            initial = PatternListState(
-                listPatterns = emptyList(),
-                isHotPatterns = true,
-                loadingState = LoadingState.LOADING
-            )
-        ).value
-        val searchState = searchState.collectAsState()
+fun SearchState.mapToTopBarViewState() = when (this) {
+    is InactiveSearchState -> DefaultTopBarViewState(isSearchAvailable = true, isBackAvailable = false)
+    is EnteredSearchState, is FocusedSearchState, is TypingSearchState -> SearchTopBarViewState(SearchViewStateMapper(this))
+}
 
-        OpenStitchScaffold(
-            onTopBarViewEvent = { _topBarViewEvents.emit(it) },
-            topBarViewState = searchState.value.mapToTopBarViewState(),
-            loadingViewState = state.loadingState.viewState
-        ) {
-            state.listState.viewState.Composable(
-                scrollState = listState,
-                viewEventListener = {
-                    val rowState = state.listState.items[it.pos]
-                    if (it.event is Click && rowState is PatternRow) {
-                        navigationTransitions.emit(OpenPatternDetail(rowState.listPattern.id))
-                    }
+@Composable
+fun PatternListView(listState: LazyListState, patternListViewModel: PatternListViewModel) {
+    val state = patternListViewModel.state.collectAsState(initial = PatternListState.DEFAULT).value
+    val searchState = patternListViewModel.searchState.collectAsState()
+
+    OpenStitchScaffold(
+        onTopBarViewEvent = { patternListViewModel._topBarViewEvents.emit(it) },
+        topBarViewState = searchState.value.mapToTopBarViewState(),
+        loadingViewState = state.loadingState.viewState
+    ) {
+        state.listState.viewState.Composable(
+            scrollState = listState,
+            viewEventListener = {
+                val rowState = state.listState.items[it.pos]
+                if (it.event is Click && rowState is PatternRow) {
+                    patternListViewModel.navigationTransitions.emit(OpenPatternDetail(rowState.listPattern.id))
                 }
-            )
-        }
-    }
-
-    private fun SearchState.mapToTopBarViewState() = when (this) {
-        is InactiveSearchState -> DefaultTopBarViewState(isSearchAvailable = true, isBackAvailable = false)
-        is EnteredSearchState, is FocusedSearchState, is TypingSearchState -> SearchTopBarViewState(SearchViewStateMapper(this))
+            }
+        )
     }
 }
