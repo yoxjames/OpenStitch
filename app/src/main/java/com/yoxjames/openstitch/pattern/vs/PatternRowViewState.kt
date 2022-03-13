@@ -39,7 +39,7 @@ data class PatternRowViewState(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(top = 8.dp, start = 2.dp, end = 2.dp),
             elevation = 4.dp,
             onClick = { coroutineScope.launch { viewEventListener.onEvent(Click) } }
         ) {
@@ -57,11 +57,9 @@ data class PatternRowViewState(
                 Column(modifier = Modifier
                     .align(CenterHorizontally)
                     .fillMaxWidth()
-                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                    .patternPlaceholder()
-                    .background(color = Teal200)) {
-                    Text(modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp), text = name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp), text = "by $author", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
+                    Text(modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp).patternPlaceholder(), text = name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp).patternPlaceholder(), text = "by $author", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
         }
