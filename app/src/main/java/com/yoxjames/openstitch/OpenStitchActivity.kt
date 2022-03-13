@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@ExperimentalMaterialApi
 @ExperimentalPagerApi
 @AndroidEntryPoint
 class OpenStitchActivity : ComponentActivity() {

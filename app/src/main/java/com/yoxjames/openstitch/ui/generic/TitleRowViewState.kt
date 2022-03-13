@@ -14,7 +14,11 @@ import com.yoxjames.openstitch.list.ListItemViewState
 data class TitleRowState(
     val text: String
 ) : ListItemState {
-    override val viewState = TitleRowViewState(text)
+    @Composable
+    override fun RowView(onViewEvent: ViewEventListener<ListItemViewEvent>) {
+        viewState.Composable(viewEventListener = onViewEvent)
+    }
+    val viewState = TitleRowViewState(text)
 }
 
 data class TitleRowViewState(

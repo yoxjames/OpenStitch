@@ -1,19 +1,31 @@
 package com.yoxjames.openstitch.list
 
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.runtime.Composable
+import com.yoxjames.openstitch.core.StatefulViewEvent
+import com.yoxjames.openstitch.core.ViewEventListener
+
 data class ListState(
     val items: List<ListItemState>,
-    val config: ListViewConfiguration = ListViewConfiguration()
-) {
-    val viewState = ListViewState(
-        listLayout = config.layout,
-        items = items.map { it.viewState }
-    )
+)
+
+@Composable
+fun ListState.Composable(scrollState: LazyListState, viewEventListener: ViewEventListener<StatefulListItemViewEvent>) {
+    LazyColumn(state = scrollState) {
+        itemsIndexed(items) { index, item ->
+            item.RowView { viewEventListener.onEvent(StatefulListItemViewEvent(viewEvent = it, state = item)) }
+        }
+    }
 }
 
 interface ListItemState {
-    val viewState: ListItemViewState
+    @Composable
+    fun RowView(onViewEvent: ViewEventListener<ListItemViewEvent>)
 }
 
-data class ListViewConfiguration(
-    val layout: ListViewState.ListLayout = ListViewState.ListLayout.ROW
-)
+data class StatefulListItemViewEvent(
+    override val viewEvent: ListItemViewEvent,
+    override val state: ListItemState
+) : StatefulViewEvent<ListItemViewEvent, ListItemState>

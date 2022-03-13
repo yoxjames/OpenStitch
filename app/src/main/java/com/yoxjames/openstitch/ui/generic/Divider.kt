@@ -5,10 +5,8 @@ import androidx.compose.runtime.Composable
 import com.yoxjames.openstitch.core.ViewEventListener
 import com.yoxjames.openstitch.list.ListItemState
 import com.yoxjames.openstitch.list.ListItemViewEvent
-import com.yoxjames.openstitch.list.ListItemViewState
 
-object Divider : ListItemViewState, ListItemState {
+object Divider : ListItemState {
     @Composable
-    override fun Composable(viewEventListener: ViewEventListener<ListItemViewEvent>) = Divider()
-    override val viewState = this
+    override fun RowView(onViewEvent: ViewEventListener<ListItemViewEvent>) = Divider()
 }
