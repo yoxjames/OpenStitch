@@ -8,6 +8,15 @@ import com.yoxjames.openstitch.ui.SearchViewEvent
 import com.yoxjames.openstitch.ui.TopBarBackClick
 import com.yoxjames.openstitch.ui.TopBarSearchViewEvent
 import com.yoxjames.openstitch.ui.TopBarViewEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transform
 
 object SearchViewEventTransitionMapper : (SearchViewEvent) -> Sequence<SearchTransition> {
     override fun invoke(viewEvent: SearchViewEvent): Sequence<SearchTransition> = when (viewEvent) {
@@ -24,3 +33,17 @@ object TopBarViewSearchViewEventTransitionMapper : (TopBarViewEvent) -> Sequence
         TopBarBackClick -> emptySequence()
     }
 }
+
+fun Flow<TopBarViewEvent>.asSearchState(
+    coroutineScope: CoroutineScope,
+    searchConfiguration: SearchConfiguration
+): StateFlow<SearchState> {
+    return transform {
+        emitAll(TopBarViewSearchViewEventTransitionMapper(it).asFlow())
+    }.mapToSearchState(searchConfiguration)
+        .stateIn(coroutineScope, SharingStarted.Lazily, InactiveSearchState(searchConfiguration))
+}
+
+private fun Flow<SearchTransition>.mapToSearchState(searchConfiguration: SearchConfiguration) = scan<SearchTransition, SearchState>(
+    InactiveSearchState(searchConfiguration)
+) { state, transition -> SearchScanFunction(state, transition) }

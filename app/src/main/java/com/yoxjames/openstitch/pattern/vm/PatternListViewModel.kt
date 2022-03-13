@@ -3,6 +3,7 @@ package com.yoxjames.openstitch.pattern.vm
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.yoxjames.openstitch.core.ViewEvent
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 interface PatternListViewModel {
     val state: StateFlow<PatternListScreenState>
     suspend fun emitViewEvent(viewEvent: PatternListScreenViewEvent)
+    suspend fun start()
 }
 
 @ExperimentalMaterialApi
@@ -65,5 +67,8 @@ fun PatternListView(listState: LazyListState, patternListViewModel: PatternListV
                 viewEventListener = { patternListViewModel.emitViewEvent(PatternListViewEvent(it)) }
             )
         }
+    }
+    LaunchedEffect(true) {
+        patternListViewModel.start()
     }
 }

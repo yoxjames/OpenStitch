@@ -1,6 +1,7 @@
 package com.yoxjames.openstitch.pattern.vm
 
 import androidx.compose.material.ExperimentalMaterialApi
+import com.yoxjames.openstitch.list.Click
 import com.yoxjames.openstitch.loading.LoadState
 import com.yoxjames.openstitch.loading.Loaded
 import com.yoxjames.openstitch.loading.NotLoaded
@@ -15,16 +16,14 @@ import com.yoxjames.openstitch.pattern.state.PatternRowItemState
 import com.yoxjames.openstitch.pattern.state.asState
 import com.yoxjames.openstitch.search.InactiveSearchState
 import com.yoxjames.openstitch.search.SearchConfiguration
-import com.yoxjames.openstitch.search.SearchScanFunction
 import com.yoxjames.openstitch.search.SearchState
-import com.yoxjames.openstitch.search.SearchTransition
-import com.yoxjames.openstitch.search.TopBarViewSearchViewEventTransitionMapper
-import com.yoxjames.openstitch.ui.TopBarViewEvent
+import com.yoxjames.openstitch.search.asSearchState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
@@ -48,17 +47,14 @@ class PatternListViewModelImpl @Inject constructor(
     companion object {
         private val searchConfiguration = SearchConfiguration("Search Patterns")
     }
-    private val topBarViewEvents: MutableSharedFlow<TopBarViewEvent> = MutableSharedFlow()
+    private val patternListViewEvents = MutableSharedFlow<PatternListScreenViewEvent>()
 
-    private val searchState: StateFlow<SearchState> = topBarViewEvents.transform { topBarViewEvent ->
-        TopBarViewSearchViewEventTransitionMapper(topBarViewEvent)
-            .forEach { searchTransition -> emit(searchTransition) }
-    }.mapToSearchState
-        .stateIn(coroutineScope, SharingStarted.Lazily, InactiveSearchState(searchConfiguration))
+    private val topBarViewEvents = patternListViewEvents.filterIsInstance<PatternListTopBarViewEvent>()
+        .map { it.event }
+    private val listViewEvents = patternListViewEvents.filterIsInstance<PatternListViewEvent>()
+        .map { it.event }
 
-    private val Flow<SearchTransition>.mapToSearchState get() = scan<SearchTransition, SearchState>(
-        InactiveSearchState(searchConfiguration)
-    ) { state, transition -> SearchScanFunction(state, transition) }
+    private val searchState: StateFlow<SearchState> = topBarViewEvents.asSearchState(coroutineScope, searchConfiguration)
 
     private val _state get() = searchState.distinctUntilChangedBy { it.text }
         .transform {
@@ -94,10 +90,13 @@ class PatternListViewModelImpl @Inject constructor(
     )
 
     override suspend fun emitViewEvent(viewEvent: PatternListScreenViewEvent) {
-        when (viewEvent) {
-            is PatternListTopBarViewEvent -> topBarViewEvents.emit(viewEvent.event)
-            is PatternListViewEvent -> when (val rowState = viewEvent.event.state) {
-                is PatternRowItemState -> navigationTransitions.emit(OpenPatternDetail(rowState.listPattern.id))
+        patternListViewEvents.emit(viewEvent)
+    }
+
+    override suspend fun start() {
+        listViewEvents.collect {
+            if (it.state is PatternRowItemState && it.viewEvent is Click) {
+                navigationTransitions.emit(OpenPatternDetail(it.state.listPattern.id))
             }
         }
     }
