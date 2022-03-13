@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.yoxjames.openstitch.core.ViewEvent
-import com.yoxjames.openstitch.core.ViewEventListener
 import com.yoxjames.openstitch.list.Composable
 import com.yoxjames.openstitch.list.StatefulListItemViewEvent
 import com.yoxjames.openstitch.pattern.state.PatternListState
@@ -25,7 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 @ExperimentalMaterialApi
 interface PatternListViewModel {
     val state: StateFlow<PatternListScreenState>
-    val viewEventListener: ViewEventListener<PatternListScreenViewEvent>
+    suspend fun emitViewEvent(viewEvent: PatternListScreenViewEvent)
 }
 
 @ExperimentalMaterialApi
@@ -57,13 +56,13 @@ fun PatternListView(listState: LazyListState, patternListViewModel: PatternListV
     val state by patternListViewModel.state.collectAsState()
     with(state) {
         OpenStitchScaffold(
-            onTopBarViewEvent = { patternListViewModel.viewEventListener.onEvent(PatternListTopBarViewEvent(it)) },
+            onTopBarViewEvent = { patternListViewModel.emitViewEvent(PatternListTopBarViewEvent(it)) },
             topBarViewState = searchState.mapToTopBarViewState(),
             loadingViewState = patternListState.loadingState.viewState
         ) {
             patternListState.listState.Composable(
                 scrollState = listState,
-                viewEventListener = { patternListViewModel.viewEventListener.onEvent(PatternListViewEvent(it)) }
+                viewEventListener = { patternListViewModel.emitViewEvent(PatternListViewEvent(it)) }
             )
         }
     }

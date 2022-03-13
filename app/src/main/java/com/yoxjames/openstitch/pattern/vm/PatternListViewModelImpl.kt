@@ -1,7 +1,6 @@
 package com.yoxjames.openstitch.pattern.vm
 
 import androidx.compose.material.ExperimentalMaterialApi
-import com.yoxjames.openstitch.core.ViewEventListener
 import com.yoxjames.openstitch.loading.LoadState
 import com.yoxjames.openstitch.loading.Loaded
 import com.yoxjames.openstitch.loading.NotLoaded
@@ -43,15 +42,15 @@ import javax.inject.Inject
 class PatternListViewModelImpl @Inject constructor(
     private val patternListDataSource: PatternListDataSource,
     private val coroutineScope: CoroutineScope,
-    val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
+    private val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
     private val views: Flow<@JvmSuppressWildcards ViewScreen>
 ) : PatternListViewModel {
     companion object {
         private val searchConfiguration = SearchConfiguration("Search Patterns")
     }
-    private val _topBarViewEvents: MutableSharedFlow<TopBarViewEvent> = MutableSharedFlow<TopBarViewEvent>()
+    private val topBarViewEvents: MutableSharedFlow<TopBarViewEvent> = MutableSharedFlow()
 
-    private val searchState: StateFlow<SearchState> = _topBarViewEvents.transform { topBarViewEvent ->
+    private val searchState: StateFlow<SearchState> = topBarViewEvents.transform { topBarViewEvent ->
         TopBarViewSearchViewEventTransitionMapper(topBarViewEvent)
             .forEach { searchTransition -> emit(searchTransition) }
     }.mapToSearchState
@@ -72,7 +71,7 @@ class PatternListViewModelImpl @Inject constructor(
             }
         }.asState()
 
-    private val patternListState: StateFlow<PatternListState> = views.map { it.navigationScreenState }
+    private val patternListState = views.map { it.navigationScreenState }
         .filterIsInstance<PatternsScreen>().scan<PatternsScreen, LoadState>(NotLoaded) { acc, it ->
             if (acc is NotLoaded || (acc is Loaded<*> && acc.loadTime + 1000 * 60 * 1 < System.currentTimeMillis())) {
                 Loaded(loadTime = System.currentTimeMillis(), state = _state.shareIn(coroutineScope, SharingStarted.Lazily, replay = 1))
@@ -82,7 +81,6 @@ class PatternListViewModelImpl @Inject constructor(
         }.filterIsInstance<Loaded<PatternListState>>()
         .distinctUntilChanged()
         .transformLatest { emitAll(it.state) }
-        .stateIn(coroutineScope, SharingStarted.Lazily, initialValue = PatternListState.DEFAULT)
 
     override val state: StateFlow<PatternListScreenState> = patternListState.combine(searchState) { patternListState, searchState ->
         PatternListScreenState(searchState, patternListState)
@@ -94,10 +92,11 @@ class PatternListViewModelImpl @Inject constructor(
             patternListState = PatternListState.DEFAULT
         )
     )
-    override val viewEventListener = ViewEventListener<PatternListScreenViewEvent> {
-        when (it) {
-            is PatternListTopBarViewEvent -> _topBarViewEvents.emit(it.event)
-            is PatternListViewEvent -> when (val rowState = it.event.state) {
+
+    override suspend fun emitViewEvent(viewEvent: PatternListScreenViewEvent) {
+        when (viewEvent) {
+            is PatternListTopBarViewEvent -> topBarViewEvents.emit(viewEvent.event)
+            is PatternListViewEvent -> when (val rowState = viewEvent.event.state) {
                 is PatternRowItemState -> navigationTransitions.emit(OpenPatternDetail(rowState.listPattern.id))
             }
         }
