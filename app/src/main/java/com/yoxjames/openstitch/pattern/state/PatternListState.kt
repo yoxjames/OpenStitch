@@ -1,7 +1,10 @@
 package com.yoxjames.openstitch.pattern.state
 
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.Composable
+import com.yoxjames.openstitch.core.ViewEventListener
 import com.yoxjames.openstitch.list.ListItemState
-import com.yoxjames.openstitch.list.ListItemViewState
+import com.yoxjames.openstitch.list.ListItemViewEvent
 import com.yoxjames.openstitch.list.ListState
 import com.yoxjames.openstitch.loading.LoadingState
 import com.yoxjames.openstitch.loading.asBoolean
@@ -16,6 +19,7 @@ import com.yoxjames.openstitch.ui.generic.TitleRowState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.scan
 
+@ExperimentalMaterialApi
 data class PatternListState(
     val listPatterns: List<ListPattern> = emptyList(),
     val isHotPatterns: Boolean = true,
@@ -30,14 +34,19 @@ data class PatternListState(
         false -> emptySequence()
     }
     val listState: ListState = ListState(
-        (titleState + listPatterns.asSequence().map { PatternRow(listPattern = it, isLoading = loadingState.asBoolean) }).toList()
+        (titleState + listPatterns.asSequence().map { PatternRowItemState(listPattern = it, isLoading = loadingState.asBoolean) }).toList()
     )
 }
-data class PatternRow(
+@ExperimentalMaterialApi
+data class PatternRowItemState(
     val listPattern: ListPattern,
     val isLoading: Boolean
 ) : ListItemState {
-    override val viewState: ListItemViewState = PatternRowViewState(
+    @Composable
+    override fun RowView(onViewEvent: ViewEventListener<ListItemViewEvent>) {
+        viewState.Composable(viewEventListener = onViewEvent)
+    }
+    private val viewState = PatternRowViewState(
         name = listPattern.name,
         author = listPattern.author,
         imageUrl = listPattern.thumbnail,
@@ -45,6 +54,7 @@ data class PatternRow(
     )
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 fun Flow<PatternListTransition>.asState(): Flow<PatternListState> {
     return scan(PatternListState.DEFAULT) { listState, transition ->
         when (transition) {
