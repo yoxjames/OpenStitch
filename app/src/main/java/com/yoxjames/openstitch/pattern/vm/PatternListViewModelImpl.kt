@@ -1,7 +1,12 @@
 package com.yoxjames.openstitch.pattern.vm
 
 import androidx.compose.material.ExperimentalMaterialApi
+import com.yoxjames.openstitch.filter.DefaultTagState
+import com.yoxjames.openstitch.filter.TagState
+import com.yoxjames.openstitch.filter.toggle
+import com.yoxjames.openstitch.list.ChildViewEvent
 import com.yoxjames.openstitch.list.Click
+import com.yoxjames.openstitch.list.StatefulListItemViewEvent
 import com.yoxjames.openstitch.loading.LoadState
 import com.yoxjames.openstitch.loading.Loaded
 import com.yoxjames.openstitch.loading.NotLoaded
@@ -11,6 +16,7 @@ import com.yoxjames.openstitch.navigation.OpenPatternDetail
 import com.yoxjames.openstitch.navigation.PatternsScreen
 import com.yoxjames.openstitch.pattern.ds.LoadingPatterns
 import com.yoxjames.openstitch.pattern.ds.PatternListDataSource
+import com.yoxjames.openstitch.pattern.ds.TagsChange
 import com.yoxjames.openstitch.pattern.state.PatternListState
 import com.yoxjames.openstitch.pattern.state.PatternRowItemState
 import com.yoxjames.openstitch.pattern.state.asState
@@ -30,6 +36,7 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
@@ -52,25 +59,31 @@ class PatternListViewModelImpl @Inject constructor(
     private val topBarViewEvents = patternListViewEvents.filterIsInstance<PatternListTopBarViewEvent>()
         .map { it.event }
     private val listViewEvents = patternListViewEvents.filterIsInstance<PatternListViewEvent>()
+        .map { it.event }.onEach { println("YOX $it") }
+
+    private val tagState = listViewEvents
+        .map { it.viewEvent }
+        .filterIsInstance<ChildViewEvent<*>>()
         .map { it.event }
+        .filterIsInstance<StatefulListItemViewEvent>()
+        .map { it.state }
+        .filterIsInstance<TagState>()
+        .scan(DefaultTagState) { acc, value -> acc.toggle(value.tag) }
 
     private val searchState: StateFlow<SearchState> = topBarViewEvents.asSearchState(coroutineScope, searchConfiguration)
 
-    private val _state get() = searchState.distinctUntilChangedBy { it.text }
+    private val patternListState get() = searchState.distinctUntilChangedBy { it.text }
+        .combine(tagState) { searchState, tagsState -> Pair(searchState, tagsState) }
         .transform {
-            if (it.text.isBlank()) {
-                emit(LoadingPatterns)
-                emitAll(patternListDataSource.loadHotPatterns())
-            } else {
-                emit(LoadingPatterns)
-                emitAll(patternListDataSource.searchPatterns(it.text))
-            }
+            emit(TagsChange(it.second))
+            emit(LoadingPatterns)
+            emitAll(patternListDataSource.loadPatterns(it.first, it.second))
         }.asState()
 
-    private val patternListState = views.map { it.navigationScreenState }
+    private val patternListStateWithCacheing = views.map { it.navigationScreenState }
         .filterIsInstance<PatternsScreen>().scan<PatternsScreen, LoadState>(NotLoaded) { acc, it ->
             if (acc is NotLoaded || (acc is Loaded<*> && acc.loadTime + 1000 * 60 * 1 < System.currentTimeMillis())) {
-                Loaded(loadTime = System.currentTimeMillis(), state = _state.shareIn(coroutineScope, SharingStarted.Lazily, replay = 1))
+                Loaded(loadTime = System.currentTimeMillis(), state = patternListState.shareIn(coroutineScope, SharingStarted.Lazily, replay = 1))
             } else {
                 acc
             }
@@ -78,7 +91,7 @@ class PatternListViewModelImpl @Inject constructor(
         .distinctUntilChanged()
         .transformLatest { emitAll(it.state) }
 
-    override val state: StateFlow<PatternListScreenState> = patternListState.combine(searchState) { patternListState, searchState ->
+    override val state: StateFlow<PatternListScreenState> = patternListStateWithCacheing.combine(searchState) { patternListState, searchState ->
         PatternListScreenState(searchState, patternListState)
     }.stateIn(
         coroutineScope,

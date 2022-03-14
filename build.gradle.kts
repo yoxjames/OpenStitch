@@ -14,6 +14,21 @@ buildscript {
     }
 }
 
+allprojects {
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
+        kotlinOptions {
+            freeCompilerArgs = listOf(
+                "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
+                "-Xuse-experimental=androidx.compose.animation.ExperimentalAnimationApi",
+                "-Xuse-experimental=androidx.compose.ExperimentalComposeApi",
+                "-Xuse-experimental=androidx.compose.material.ExperimentalMaterialApi",
+                "-Xuse-experimental=androidx.compose.runtime.ExperimentalComposeApi",
+                "-Xuse-experimental=androidx.compose.ui.ExperimentalComposeUiApi",
+            )
+        }
+    }
+}
+
 tasks.register("clean", Delete::class){
     delete(rootProject.buildDir)
 }
