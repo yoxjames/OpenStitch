@@ -59,7 +59,7 @@ class PatternListViewModelImpl @Inject constructor(
     private val topBarViewEvents = patternListViewEvents.filterIsInstance<PatternListTopBarViewEvent>()
         .map { it.event }
     private val listViewEvents = patternListViewEvents.filterIsInstance<PatternListViewEvent>()
-        .map { it.event }.onEach { println("YOX $it") }
+        .map { it.event }
 
     private val tagState = listViewEvents
         .map { it.viewEvent }
