@@ -62,9 +62,6 @@ class PatternListViewModelImpl @Inject constructor(
         .map { it.event }
 
     private val tagState = listViewEvents
-        .map { it.viewEvent }
-        .filterIsInstance<ChildViewEvent<*>>()
-        .map { it.event }
         .filterIsInstance<StatefulListItemViewEvent>()
         .map { it.state }
         .filterIsInstance<TagState>()

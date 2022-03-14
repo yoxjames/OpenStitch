@@ -27,7 +27,7 @@ data class ChipViewState(
         Card(
             elevation = 8.dp,
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.padding(top = 8.dp, bottom = 0.dp, start = 4.dp),
+            modifier = Modifier.padding(start = 4.dp),
             backgroundColor = if (isApplied) MaterialTheme.colors.primary else MaterialTheme.colors.surface,
             onClick = { coroutineScope.launch { viewEventListener.onEvent(Click) } }
         ) {

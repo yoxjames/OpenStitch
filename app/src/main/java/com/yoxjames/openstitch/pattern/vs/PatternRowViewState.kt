@@ -39,7 +39,7 @@ data class PatternRowViewState(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, start = 2.dp, end = 2.dp),
+                .padding(top = 4.dp, start = 2.dp, end = 2.dp),
             elevation = 4.dp,
             onClick = { coroutineScope.launch { viewEventListener.onEvent(Click) } }
         ) {

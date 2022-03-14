@@ -56,7 +56,7 @@ object RavelryPatternMapper : (RavelryListPattern) -> ListPattern {
             id = ravelryPattern.id,
             name = ravelryPattern.name,
             author = ravelryPattern.patternAuthor.name,
-            thumbnail = ravelryPattern.firstPhoto?.smallUrl ?: "",
+            thumbnail = ravelryPattern.firstPhoto?.mediumUrl ?: "",
             isFree = ravelryPattern.free
         )
     }

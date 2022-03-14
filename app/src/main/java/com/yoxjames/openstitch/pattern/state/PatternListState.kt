@@ -17,8 +17,6 @@ import com.yoxjames.openstitch.pattern.ds.PatternsLoaded
 import com.yoxjames.openstitch.pattern.ds.TagsChange
 import com.yoxjames.openstitch.pattern.model.ListPattern
 import com.yoxjames.openstitch.pattern.vs.PatternRowViewState
-import com.yoxjames.openstitch.ui.generic.Divider
-import com.yoxjames.openstitch.ui.generic.TitleRowState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.scan
 
@@ -33,20 +31,12 @@ data class PatternListState(
     companion object {
         val DEFAULT = PatternListState()
     }
-    private val titleState = when (isHotPatterns && listPatterns.isNotEmpty()) {
-        true -> sequenceOf(TitleRowState("\uD83d\uDD25 Hot Patterns"), Divider)
-        false -> emptySequence()
-    }
 
-    private val patternFilterState = sequenceOf(tagsState.asListState())
-
+    val chipList = tagsState.asListState()
     val listState: ListState = ListState(
-        (
-            patternFilterState + titleState + listPatterns.asSequence().map {
-                PatternRowItemState(listPattern = it, isLoading = loadingState.asBoolean)
-            }
-            ).toList()
+        listPatterns.map { PatternRowItemState(listPattern = it, isLoading = loadingState.asBoolean) }
     )
+
 }
 @ExperimentalMaterialApi
 data class PatternRowItemState(

@@ -1,5 +1,6 @@
 package com.yoxjames.openstitch.pattern.vm
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
@@ -7,7 +8,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.yoxjames.openstitch.core.ViewEvent
-import com.yoxjames.openstitch.list.ItemView
+import com.yoxjames.openstitch.list.FlowingRow
+import com.yoxjames.openstitch.list.GridView
 import com.yoxjames.openstitch.list.StatefulListItemViewEvent
 import com.yoxjames.openstitch.pattern.state.PatternListState
 import com.yoxjames.openstitch.search.EnteredSearchState
@@ -62,10 +64,15 @@ fun PatternListView(listState: LazyListState, patternListViewModel: PatternListV
             topBarViewState = searchState.mapToTopBarViewState(),
             loadingViewState = patternListState.loadingState.viewState
         ) {
-            patternListState.listState.ItemView(
-                scrollState = listState,
-                viewEventListener = { patternListViewModel.emitViewEvent(PatternListViewEvent(it)) }
-            )
+            Column {
+                patternListState.chipList.FlowingRow {
+                    patternListViewModel.emitViewEvent(PatternListViewEvent(it))
+                }
+                patternListState.listState.GridView(
+                    scrollState = listState,
+                    viewEventListener = { patternListViewModel.emitViewEvent(PatternListViewEvent(it)) }
+                )
+            }
         }
     }
     LaunchedEffect(true) {

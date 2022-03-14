@@ -22,10 +22,20 @@ data class ListState(
     }
 }
 
+@Composable
+fun ListState.FlowingRow(viewEventListener: ViewEventListener<StatefulListItemViewEvent>) {
+    FlowRow {
+        items.forEach { listItemState ->
+            listItemState.ItemView {
+                viewEventListener.onEvent(StatefulListItemViewEvent(viewEvent = it, state = listItemState))
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-
-fun ListState.Composable(scrollState: LazyListState, viewEventListener: ViewEventListener<StatefulListItemViewEvent>) {
+fun ListState.GridView(scrollState: LazyListState, viewEventListener: ViewEventListener<StatefulListItemViewEvent>) {
     LazyVerticalGrid(state = scrollState, cells = GridCells.Fixed(2)) {
         itemsIndexed(items) { index, item ->
             item.ItemView { viewEventListener.onEvent(StatefulListItemViewEvent(viewEvent = it, state = item)) }
