@@ -9,5 +9,5 @@ import com.yoxjames.openstitch.core.ViewState
  */
 interface ListItemViewState : ViewState {
     @Composable
-    fun Composable(viewEventListener: ViewEventListener<ListItemViewEvent>)
+    fun ItemContent(viewEventListener: ViewEventListener<ListItemViewEvent>)
 }

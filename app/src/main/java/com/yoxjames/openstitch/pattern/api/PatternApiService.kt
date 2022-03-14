@@ -8,15 +8,15 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.QueryMap
 
 interface PatternApiService {
     @GET("patterns/search.json")
     suspend fun search(
-        @Query("query") query: String? = null,
         @Query("page") page: Int? = null,
         @Query("page_size") pageSize: Int? = null,
-        @Query("personal_attributes") personalAttributes: Boolean? = null,
-        @Query("sort") sort: String? = null
+        @Query("sort") sort: String? = null,
+        @QueryMap tags: Map<String, String> = emptyMap()
     ): Response<SearchResponseWrapper>
 
     @GET("patterns/{id}.json")

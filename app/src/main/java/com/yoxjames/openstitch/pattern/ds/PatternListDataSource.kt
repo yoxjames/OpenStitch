@@ -1,8 +1,14 @@
 package com.yoxjames.openstitch.pattern.ds
 
+import androidx.compose.material.ExperimentalMaterialApi
+import com.yoxjames.openstitch.filter.TagState
+import com.yoxjames.openstitch.filter.TagsState
 import com.yoxjames.openstitch.pattern.api.PatternApiService
+import com.yoxjames.openstitch.pattern.api.asQueryParams
+import com.yoxjames.openstitch.pattern.api.isHotPatterns
 import com.yoxjames.openstitch.pattern.api.models.RavelryListPattern
 import com.yoxjames.openstitch.pattern.model.ListPattern
+import com.yoxjames.openstitch.search.SearchState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -11,31 +17,37 @@ import javax.inject.Inject
 class PatternListDataSource @Inject constructor(
     private val patternApiService: PatternApiService
 ) {
-    fun loadHotPatterns() = flow {
-        patternApiService.search(sort = "recently-popular").unwrap(
-            onSuccess = { emit(HotPatternsLoaded(it.patterns.map(RavelryPatternMapper))) },
-            onFailure = { /* TODO */ }
-        )
-    }.flowOn(Dispatchers.IO)
-
-    fun searchPatterns(query: String) = flow {
-        patternApiService.search(query = query).unwrap(
-            onSuccess = { emit(PatternSearchLoaded(it.patterns.map(RavelryPatternMapper))) },
-            onFailure = { /* TODO */ }
+    @ExperimentalMaterialApi
+    fun loadPatterns(searchState: SearchState, tags: List<TagState>) = flow {
+        val apiFilters = searchState.asQueryParams() + tags.asQueryParams()
+        patternApiService.search(tags = apiFilters).unwrap(
+            onSuccess = {
+                emit(
+                    PatternsLoaded(
+                        isDefault = searchState.asQueryParams().isHotPatterns,
+                        tagsState = tags,
+                        listPatterns = it.patterns.map(RavelryPatternMapper)
+                    )
+                )
+            },
+            onFailure = { }
         )
     }.flowOn(Dispatchers.IO)
 }
 
 sealed interface PatternListTransition
 
-object LoadingPatterns : PatternListTransition
-
-data class HotPatternsLoaded(
-    val listPatterns: List<ListPattern>,
+@JvmInline
+value class TagsChange(
+    val tagsState: TagsState
 ) : PatternListTransition
 
-data class PatternSearchLoaded(
-    val listPatterns: List<ListPattern>
+object LoadingPatterns : PatternListTransition
+
+data class PatternsLoaded(
+    val isDefault: Boolean = true,
+    val tagsState: TagsState,
+    val listPatterns: List<ListPattern>,
 ) : PatternListTransition
 
 object RavelryPatternMapper : (RavelryListPattern) -> ListPattern {

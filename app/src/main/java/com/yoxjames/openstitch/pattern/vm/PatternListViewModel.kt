@@ -7,7 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.yoxjames.openstitch.core.ViewEvent
-import com.yoxjames.openstitch.list.Composable
+import com.yoxjames.openstitch.list.ItemView
 import com.yoxjames.openstitch.list.StatefulListItemViewEvent
 import com.yoxjames.openstitch.pattern.state.PatternListState
 import com.yoxjames.openstitch.search.EnteredSearchState
@@ -62,7 +62,7 @@ fun PatternListView(listState: LazyListState, patternListViewModel: PatternListV
             topBarViewState = searchState.mapToTopBarViewState(),
             loadingViewState = patternListState.loadingState.viewState
         ) {
-            patternListState.listState.Composable(
+            patternListState.listState.ItemView(
                 scrollState = listState,
                 viewEventListener = { patternListViewModel.emitViewEvent(PatternListViewEvent(it)) }
             )

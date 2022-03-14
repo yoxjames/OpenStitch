@@ -15,8 +15,8 @@ data class TitleRowState(
     val text: String
 ) : ListItemState {
     @Composable
-    override fun RowView(onViewEvent: ViewEventListener<ListItemViewEvent>) {
-        viewState.Composable(viewEventListener = onViewEvent)
+    override fun ItemView(onViewEvent: ViewEventListener<ListItemViewEvent>) {
+        viewState.ItemContent(viewEventListener = onViewEvent)
     }
     val viewState = TitleRowViewState(text)
 }
@@ -25,7 +25,7 @@ data class TitleRowViewState(
     val text: String
 ) : ListItemViewState {
     @Composable
-    override fun Composable(viewEventListener: ViewEventListener<ListItemViewEvent>) {
+    override fun ItemContent(viewEventListener: ViewEventListener<ListItemViewEvent>) {
         Text(text = text, modifier = Modifier.padding(8.dp), style = MaterialTheme.typography.h4)
     }
 }

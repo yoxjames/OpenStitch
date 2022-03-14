@@ -34,7 +34,7 @@ data class PatternRowViewState(
 ) : ListItemViewState {
     @ExperimentalMaterialApi
     @Composable
-    override fun Composable(viewEventListener: ViewEventListener<ListItemViewEvent>) {
+    override fun ItemContent(viewEventListener: ViewEventListener<ListItemViewEvent>) {
         val coroutineScope = rememberCoroutineScope()
         Card(
             modifier = Modifier

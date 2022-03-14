@@ -8,5 +8,5 @@ import com.yoxjames.openstitch.list.ListItemViewEvent
 
 object Divider : ListItemState {
     @Composable
-    override fun RowView(onViewEvent: ViewEventListener<ListItemViewEvent>) = Divider()
+    override fun ItemView(onViewEvent: ViewEventListener<ListItemViewEvent>) = Divider()
 }
