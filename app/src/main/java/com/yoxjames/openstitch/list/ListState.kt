@@ -1,8 +1,7 @@
 package com.yoxjames.openstitch.list
 
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.*
 import androidx.compose.runtime.Composable
 import com.google.accompanist.flowlayout.FlowRow
 import com.yoxjames.openstitch.core.StatefulViewEvent
@@ -23,9 +22,11 @@ data class ListState(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ListState.ItemView(scrollState: LazyListState, viewEventListener: ViewEventListener<StatefulListItemViewEvent>) {
-    LazyColumn(state = scrollState) {
+
+fun ListState.Composable(scrollState: LazyListState, viewEventListener: ViewEventListener<StatefulListItemViewEvent>) {
+    LazyVerticalGrid(state = scrollState, cells = GridCells.Fixed(2)) {
         itemsIndexed(items) { index, item ->
             item.ItemView { viewEventListener.onEvent(StatefulListItemViewEvent(viewEvent = it, state = item)) }
         }
