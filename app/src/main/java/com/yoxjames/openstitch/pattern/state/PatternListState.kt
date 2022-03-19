@@ -36,7 +36,6 @@ data class PatternListState(
     val listState: ListState = ListState(
         listPatterns.map { PatternRowItemState(listPattern = it, isLoading = loadingState.asBoolean) }
     )
-
 }
 @ExperimentalMaterialApi
 data class PatternRowItemState(

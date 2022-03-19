@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import androidx.activity.ComponentActivity
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.lifecycleScope
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
@@ -19,8 +18,6 @@ import com.yoxjames.openstitch.navigation.NavigationTransition
 import com.yoxjames.openstitch.navigation.None
 import com.yoxjames.openstitch.oauth.OpenStitchAuthenticator
 import com.yoxjames.openstitch.pattern.api.PatternApiService
-import com.yoxjames.openstitch.pattern.vm.PatternListViewModel
-import com.yoxjames.openstitch.pattern.vm.PatternListViewModelImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -186,12 +183,5 @@ object MainModule {
         navigationScreenState: StateFlow<@JvmSuppressWildcards NavigationScreenState>
     ): Flow<@JvmSuppressWildcards ViewScreen> {
         return merge(viewBus, navigationScreenState.map { ViewScreen(it) })
-    }
-
-    @ExperimentalMaterialApi
-    @Provides
-    @ActivityScoped
-    fun providePatternListViewModel(patternListViewModelImpl: PatternListViewModelImpl): PatternListViewModel {
-        return patternListViewModelImpl
     }
 }
