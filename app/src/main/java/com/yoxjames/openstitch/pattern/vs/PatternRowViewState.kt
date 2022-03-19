@@ -1,13 +1,14 @@
 package com.yoxjames.openstitch.pattern.vs
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,7 +24,6 @@ import com.yoxjames.openstitch.core.ViewEventListener
 import com.yoxjames.openstitch.list.Click
 import com.yoxjames.openstitch.list.ListItemViewEvent
 import com.yoxjames.openstitch.list.ListItemViewState
-import com.yoxjames.openstitch.ui.theme.Teal200
 import kotlinx.coroutines.launch
 
 data class PatternRowViewState(
@@ -54,10 +54,12 @@ data class PatternRowViewState(
                     imageModel = imageUrl,
                     contentScale = ContentScale.Crop,
                 )
-                Column(modifier = Modifier
-                    .align(CenterHorizontally)
-                    .fillMaxWidth()
-                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
+                Column(
+                    modifier = Modifier
+                        .align(CenterHorizontally)
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                ) {
                     Text(modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp).patternPlaceholder(), text = name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp).patternPlaceholder(), text = "by $author", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }

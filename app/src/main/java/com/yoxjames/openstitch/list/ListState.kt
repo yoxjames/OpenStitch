@@ -1,7 +1,10 @@
 package com.yoxjames.openstitch.list
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import com.google.accompanist.flowlayout.FlowRow
 import com.yoxjames.openstitch.core.StatefulViewEvent

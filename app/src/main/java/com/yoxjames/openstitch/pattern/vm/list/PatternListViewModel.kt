@@ -1,10 +1,10 @@
-package com.yoxjames.openstitch.pattern.vm
+package com.yoxjames.openstitch.pattern.vm.list
 
 import androidx.compose.material.ExperimentalMaterialApi
+import com.yoxjames.openstitch.core.OpenStitchViewModel
 import com.yoxjames.openstitch.filter.DefaultTagState
 import com.yoxjames.openstitch.filter.TagState
 import com.yoxjames.openstitch.filter.toggle
-import com.yoxjames.openstitch.list.ChildViewEvent
 import com.yoxjames.openstitch.list.Click
 import com.yoxjames.openstitch.list.StatefulListItemViewEvent
 import com.yoxjames.openstitch.loading.LoadState
@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
@@ -45,12 +44,12 @@ import kotlinx.coroutines.flow.transformLatest
 import javax.inject.Inject
 
 @ExperimentalMaterialApi
-class PatternListViewModelImpl @Inject constructor(
+class PatternListViewModel @Inject constructor(
     private val patternListDataSource: PatternListDataSource,
     private val coroutineScope: CoroutineScope,
     private val navigationTransitions: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
     private val views: Flow<@JvmSuppressWildcards ViewScreen>
-) : PatternListViewModel {
+) : OpenStitchViewModel<PatternListScreenState, PatternListScreenViewEvent> {
     companion object {
         private val searchConfiguration = SearchConfiguration("Search Patterns")
     }
