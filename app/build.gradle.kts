@@ -2,6 +2,7 @@ import Dependencies.accompanistVersion
 import Dependencies.activityComposeVersion
 import Dependencies.appAuthVersion
 import Dependencies.appCompatVersion
+import Dependencies.arrowVersion
 import Dependencies.chuckerVersion
 import Dependencies.composeVersion
 import Dependencies.coreKtxVersion
@@ -107,6 +108,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-pager:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-pager-indicators:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
+    implementation("io.arrow-kt:arrow-core:$arrowVersion")
     debugImplementation("com.github.chuckerteam.chucker:library:$chuckerVersion")
     releaseImplementation("com.github.chuckerteam.chucker:library-no-op:$chuckerVersion")
 

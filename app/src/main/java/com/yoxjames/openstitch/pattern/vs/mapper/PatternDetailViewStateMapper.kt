@@ -3,11 +3,13 @@ package com.yoxjames.openstitch.pattern.vs.mapper
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
+import arrow.core.Option
+import arrow.core.filterOption
+import arrow.core.some
 import com.yoxjames.openstitch.R
 import com.yoxjames.openstitch.pattern.model.CraftType
 import com.yoxjames.openstitch.pattern.model.Free
 import com.yoxjames.openstitch.pattern.model.MonetaryPrice
-import com.yoxjames.openstitch.pattern.model.None
 import com.yoxjames.openstitch.pattern.state.LoadedPatternDetailState
 import com.yoxjames.openstitch.pattern.vs.PatternDetailViewState
 import com.yoxjames.openstitch.pattern.vs.PatternPhoto
@@ -15,7 +17,6 @@ import com.yoxjames.openstitch.ui.generic.QuickInfoCardViewState
 import com.yoxjames.openstitch.ui.generic.QuickInfoComposableVectorIcon
 import com.yoxjames.openstitch.ui.generic.QuickInfoDrawableIcon
 import java.text.NumberFormat
-import java.util.Currency
 
 object PatternDetailViewStateMapper : (LoadedPatternDetailState) -> PatternDetailViewState {
     override fun invoke(state: LoadedPatternDetailState): PatternDetailViewState {
@@ -33,52 +34,53 @@ object PatternDetailViewStateMapper : (LoadedPatternDetailState) -> PatternDetai
     }
 
     private val LoadedPatternDetailState.quickInfoCards: List<QuickInfoCardViewState> get() = sequence {
-
-        when (pattern.price) {
-            Free -> yield(LoadedPatternDetailState.freeCard)
-            is MonetaryPrice -> yield(priceCard)
-            None -> Unit
+        pattern.price.map { price ->
+            when (price) {
+                Free -> yield(freeCard)
+                is MonetaryPrice -> yield(price.priceCard)
+            } 
         }
         yield(needleSizeCard)
         yield(sizeCard)
         yield(idCard)
-    }.toList()
+    }.filterOption().toList()
 
-    private val LoadedPatternDetailState.isKnitting get() = pattern.craftType == CraftType.KNITTING
-    private val LoadedPatternDetailState.usSizeLine get() = when (pattern.usNeedleSize.isBlank()) {
-        true -> "No Size"
-        false -> "US ${pattern.usNeedleSize}"
+    private val LoadedPatternDetailState.needleSizeCard: Option<QuickInfoCardViewState> get() = pattern.craftType.map { craftType ->
+        val usSizeLine = pattern.usNeedleSize.map { "US $it" }
+        val metricLine = pattern.metricNeedleSize.map { "$it mm" }
+        val res = when (craftType) {
+            CraftType.KNITTING -> R.drawable.knitting_needles
+            CraftType.CROCHET -> R.drawable.crochet_hook
+        }
+
+        QuickInfoCardViewState(
+            icon = QuickInfoDrawableIcon(res),
+            textLines = listOf(usSizeLine, metricLine).filterOption().ifEmpty { listOf("No Size") }
+        )
+    }.orNone()
+
+    private val LoadedPatternDetailState.sizeCard: Option<QuickInfoCardViewState> get() = pattern.weight.map { weight ->
+        QuickInfoCardViewState(
+            icon = QuickInfoDrawableIcon(R.drawable.yarn),
+            textLines = listOf(weight)
+        )
     }
-    private val LoadedPatternDetailState.metricLine get() = when (pattern.metricNeedleSize.isBlank()) {
-        true -> ""
-        false -> "${pattern.metricNeedleSize} mm"
-    }
-    private val LoadedPatternDetailState.needleSizeCard get() = QuickInfoCardViewState(
-        icon = QuickInfoDrawableIcon(if (isKnitting) R.drawable.knitting_needles else R.drawable.crochet_hook),
-        firstLine = usSizeLine,
-        secondLine = metricLine
-    )
 
-    private val LoadedPatternDetailState.sizeCard get() = QuickInfoCardViewState(
-        icon = QuickInfoDrawableIcon(R.drawable.yarn),
-        firstLine = pattern.weight,
-        secondLine = ""
-    )
+    private val freeCard = QuickInfoCardViewState(
+        icon = QuickInfoComposableVectorIcon(Icons.Default.ShoppingCart),
+        textLines = listOf("Free"),
+    ).some()
 
-    private val LoadedPatternDetailState.priceCard: QuickInfoCardViewState get() {
-        val formattedPrice = NumberFormat.getCurrencyInstance().format((pattern.price as MonetaryPrice).price).drop(1)
-        val currencySymbol = Currency.getInstance(pattern.currency.ifBlank { "USD" }).symbol
-        val prettyPrice = "$currencySymbol$formattedPrice"
+    private val MonetaryPrice.priceCard: Option<QuickInfoCardViewState> get() {
+        val formattedPrice = NumberFormat.getCurrencyInstance().format(price)
         return QuickInfoCardViewState(
             icon = QuickInfoComposableVectorIcon(Icons.Default.ShoppingCart),
-            firstLine = prettyPrice,
-            secondLine = pattern.currency
-        )
+            textLines = listOf(formattedPrice)
+        ).some()
     }
 
     private val LoadedPatternDetailState.idCard get() = QuickInfoCardViewState(
         icon = QuickInfoComposableVectorIcon(Icons.Default.Settings),
-        firstLine = pattern.id.toString(),
-        secondLine = ""
-    )
+        textLines = listOf(pattern.id.toString())
+    ).some()
 }

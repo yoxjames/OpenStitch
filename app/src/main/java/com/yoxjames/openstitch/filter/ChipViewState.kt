@@ -3,7 +3,6 @@ package com.yoxjames.openstitch.filter
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +19,6 @@ data class ChipViewState(
     val text: String,
     val isApplied: Boolean
 ) : ListItemViewState {
-    @ExperimentalMaterialApi
     @Composable
     override fun ItemContent(viewEventListener: ViewEventListener<ListItemViewEvent>) {
         val coroutineScope = rememberCoroutineScope()

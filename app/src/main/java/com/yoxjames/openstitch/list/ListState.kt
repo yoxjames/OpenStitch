@@ -1,6 +1,5 @@
 package com.yoxjames.openstitch.list
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyVerticalGrid
@@ -36,7 +35,6 @@ fun ListState.FlowingRow(viewEventListener: ViewEventListener<StatefulListItemVi
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListState.GridView(scrollState: LazyListState, viewEventListener: ViewEventListener<StatefulListItemViewEvent>) {
     LazyVerticalGrid(state = scrollState, cells = GridCells.Fixed(2)) {

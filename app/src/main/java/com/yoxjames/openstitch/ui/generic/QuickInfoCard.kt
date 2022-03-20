@@ -29,24 +29,20 @@ data class QuickInfoComposableVectorIcon(
 
 data class QuickInfoCardViewState(
     val icon: QuickInfoIcon,
-    val firstLine: String,
-    val secondLine: String
+    val textLines: List<String>
 ) {
     @Composable
     fun Composable() {
-        if (firstLine.isNotBlank()) {
-            QuickInfoCard {
-                when (icon) {
-                    is QuickInfoComposableVectorIcon -> {
-                        Icon(icon.vector, contentDescription = null)
-                    }
-                    is QuickInfoDrawableIcon -> {
-                        Icon(painterResource(id = icon.drawableRes), contentDescription = null)
-                    }
+        QuickInfoCard {
+            when (icon) {
+                is QuickInfoComposableVectorIcon -> {
+                    Icon(icon.vector, contentDescription = null)
                 }
-                Text(text = firstLine)
-                if (secondLine.isNotBlank()) { Text(text = secondLine) }
+                is QuickInfoDrawableIcon -> {
+                    Icon(painterResource(id = icon.drawableRes), contentDescription = null)
+                }
             }
+            textLines.forEach { lineStr -> Text(text = lineStr) }
         }
     }
 
