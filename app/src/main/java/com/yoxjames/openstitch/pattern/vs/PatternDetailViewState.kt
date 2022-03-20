@@ -21,6 +21,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
+import arrow.core.Option
+import arrow.core.getOrElse
 import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -33,14 +35,14 @@ import com.yoxjames.openstitch.ui.generic.QuickInfoCardViewState
 
 data class PatternPhoto(
     val url: String,
-    val caption: String
+    val caption: Option<String>
 )
 
 data class PatternDetailViewState(
     val name: String,
     val author: String,
     val gallery: List<PatternPhoto>,
-    val description: String,
+    val description: Option<String>,
     val quickInfoCards: List<QuickInfoCardViewState>,
 ) {
     @ExperimentalPagerApi
@@ -69,10 +71,10 @@ data class PatternDetailViewState(
             }
             HorizontalPagerIndicator(modifier = Modifier.padding(8.dp), pagerState = pagerState)
 
-            val caption = gallery[pagerState.currentPage].caption
+            val caption = gallery[pagerState.currentPage].caption.getOrElse { "" }
 
             // Caption
-            if (gallery.any { it.caption.isNotBlank() }) {
+            if (gallery.any { it.caption.isDefined() }) {
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
                     text = caption
@@ -89,7 +91,9 @@ data class PatternDetailViewState(
                         Text(text = name, style = MaterialTheme.typography.h5)
                     }
                     Text(text = author, style = MaterialTheme.typography.h6)
-                    HtmlText(modifier = Modifier.padding(top = 8.dp), html = description)
+                    description.tap {
+                        HtmlText(modifier = Modifier.padding(top = 8.dp), html = it)
+                    }
                 }
             }
         }

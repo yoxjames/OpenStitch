@@ -6,9 +6,7 @@ sealed interface Price
 
 object Free : Price
 
-object None : Price
-
-@JvmInline
-value class MonetaryPrice(
-    val price: BigDecimal
+data class MonetaryPrice(
+    val price: BigDecimal,
+    val currencySymbol: String,
 ) : Price

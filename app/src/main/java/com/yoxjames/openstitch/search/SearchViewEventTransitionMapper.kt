@@ -1,5 +1,6 @@
 package com.yoxjames.openstitch.search
 
+import com.yoxjames.openstitch.ui.ActionClick
 import com.yoxjames.openstitch.ui.SearchBackClick
 import com.yoxjames.openstitch.ui.SearchClick
 import com.yoxjames.openstitch.ui.SearchEntered
@@ -31,6 +32,7 @@ object TopBarViewSearchViewEventTransitionMapper : (TopBarViewEvent) -> Sequence
         SearchClick -> sequenceOf(EngageSearch)
         is TopBarSearchViewEvent -> SearchViewEventTransitionMapper(viewEvent.searchViewEvent)
         TopBarBackClick -> emptySequence()
+        is ActionClick -> emptySequence() // TODO
     }
 }
 
