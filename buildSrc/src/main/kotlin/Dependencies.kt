@@ -10,6 +10,7 @@ object Dependencies {
     const val arrowVersion = "1.0.1"
     const val chuckerVersion = "3.5.2"
     const val composeVersion = "1.0.5"
+    const val composeDestinationsVersion = "1.3.4-beta"
     const val coreKtxVersion = "1.7.0"
     const val daggerVersion = "2.40.5"
     const val landscapistVersion = "1.4.5"
@@ -23,4 +24,5 @@ object Dependencies {
     const val timberVersion = "5.0.1"
     const val jUnitVersion = "4.13.2"
     const val ktLintVersion = "10.2.1"
+    const val kspVersion = "$kotlinVersion-1.0.1"
 }
