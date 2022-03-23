@@ -108,6 +108,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
     kapt("androidx.lifecycle:lifecycle-compiler:$lifecycleVersion")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     implementation("androidx.activity:activity-ktx:1.4.0")
     implementation("androidx.activity:activity-compose:$activityComposeVersion")
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")

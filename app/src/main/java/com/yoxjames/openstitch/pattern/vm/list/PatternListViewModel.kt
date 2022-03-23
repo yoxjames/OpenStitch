@@ -95,7 +95,6 @@ class PatternListViewModel @Inject constructor(
         listViewEvents.collect {
             if (it.state is PatternRowItemState && it.viewEvent is Click) {
 //                navigationTransitions.emit(OpenPatternDetail(it.state.listPattern.id))
-                TODO()
             }
         }
     }

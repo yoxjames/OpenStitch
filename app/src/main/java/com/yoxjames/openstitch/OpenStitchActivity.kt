@@ -4,24 +4,16 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.lifecycleScope
+import com.ramcosta.composedestinations.DestinationsNavHost
 import com.yoxjames.openstitch.loading.ViewScreen
 import com.yoxjames.openstitch.navigation.Back
-import com.yoxjames.openstitch.navigation.HotPatterns
 import com.yoxjames.openstitch.navigation.NavigationScreenState
 import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.navigation.NavigationTransition
-import com.yoxjames.openstitch.navigation.None
-import com.yoxjames.openstitch.navigation.PatternDetail
-import com.yoxjames.openstitch.navigation.SearchingPatterns
 import com.yoxjames.openstitch.oauth.AuthenticationManager
-import com.yoxjames.openstitch.pattern.vm.detail.PatternDetailView
-import com.yoxjames.openstitch.pattern.vm.detail.PatternDetailViewModel
-import com.yoxjames.openstitch.pattern.vm.list.PatternListView
-import com.yoxjames.openstitch.pattern.vm.list.PatternListViewModel
+import com.yoxjames.openstitch.pattern.vm.NavGraphs
 import com.yoxjames.openstitch.ui.theme.OpenStitchTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -35,8 +27,6 @@ class OpenStitchActivity : ComponentActivity() {
     @Inject lateinit var authenticationManager: AuthenticationManager
     @Inject lateinit var navigationScreenState: StateFlow<@JvmSuppressWildcards NavigationScreenState>
     @Inject lateinit var navigationState: StateFlow<@JvmSuppressWildcards NavigationState>
-    private val patternDetailViewModel: PatternDetailViewModel by viewModels()
-    private val patternListViewModel: PatternListViewModel by viewModels()
     @Inject lateinit var navigationBus: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>
     @Inject lateinit var viewsBus: MutableSharedFlow<@JvmSuppressWildcards ViewScreen>
 
@@ -67,12 +57,13 @@ class OpenStitchActivity : ComponentActivity() {
     private fun attachUi() {
         setContent {
             OpenStitchTheme {
-                when (navigationScreenState.collectAsState(HotPatterns).value) {
-                    None -> Unit
-                    HotPatterns -> PatternListView(patternListViewModel)
-                    is PatternDetail -> PatternDetailView(patternDetailViewModel)
-                    is SearchingPatterns -> PatternListView(patternListViewModel)
-                }
+//                when (navigationScreenState.collectAsState(HotPatterns).value) {
+//                    None -> Unit
+//                    HotPatterns -> PatternListView()
+//                    is PatternDetail -> PatternDetailView()
+//                    is SearchingPatterns -> PatternListView()
+//                }
+                DestinationsNavHost(navGraph = NavGraphs.root)
             }
         }
     }
