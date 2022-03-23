@@ -36,7 +36,7 @@ class OpenStitchActivity : ComponentActivity() {
     @Inject lateinit var navigationScreenState: StateFlow<@JvmSuppressWildcards NavigationScreenState>
     @Inject lateinit var navigationState: StateFlow<@JvmSuppressWildcards NavigationState>
     private val patternDetailViewModel: PatternDetailViewModel by viewModels()
-    @Inject lateinit var patternListViewModel: PatternListViewModel
+    private val patternListViewModel: PatternListViewModel by viewModels()
     @Inject lateinit var navigationBus: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>
     @Inject lateinit var viewsBus: MutableSharedFlow<@JvmSuppressWildcards ViewScreen>
 
@@ -69,9 +69,9 @@ class OpenStitchActivity : ComponentActivity() {
             OpenStitchTheme {
                 when (navigationScreenState.collectAsState(HotPatterns).value) {
                     None -> Unit
-                    HotPatterns -> PatternListView()
+                    HotPatterns -> PatternListView(patternListViewModel)
                     is PatternDetail -> PatternDetailView(patternDetailViewModel)
-                    is SearchingPatterns -> PatternListView()
+                    is SearchingPatterns -> PatternListView(patternListViewModel)
                 }
             }
         }

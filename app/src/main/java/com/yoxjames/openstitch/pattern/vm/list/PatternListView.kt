@@ -5,16 +5,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
-import com.yoxjames.openstitch.core.openStitchActivity
 import com.yoxjames.openstitch.list.FlowingRow
 import com.yoxjames.openstitch.list.GridView
 import com.yoxjames.openstitch.ui.core.OpenStitchScaffold
 
 @Composable
-fun PatternListView() {
+fun PatternListView(viewModel: PatternListViewModel) {
     val listState = rememberLazyListState()
-    val viewModel = LocalContext.current.openStitchActivity.patternListViewModel
     val state: PatternListScreenState = viewModel.state.collectAsState().value
     with(state) {
         OpenStitchScaffold(
