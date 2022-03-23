@@ -1,5 +1,7 @@
+
 import Dependencies.accompanistVersion
-import Dependencies.activityComposeVersion
+import Dependencies.androidxActivityVersion
+import Dependencies.androidxHiltVersion
 import Dependencies.appAuthVersion
 import Dependencies.appCompatVersion
 import Dependencies.arrowVersion
@@ -108,9 +110,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
     kapt("androidx.lifecycle:lifecycle-compiler:$lifecycleVersion")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-    implementation("androidx.activity:activity-ktx:1.4.0")
-    implementation("androidx.activity:activity-compose:$activityComposeVersion")
+    implementation("androidx.hilt:hilt-navigation-compose:$androidxHiltVersion")
+    kapt("androidx.hilt:hilt-compiler:$androidxHiltVersion")
+    implementation("androidx.activity:activity-ktx:$androidxActivityVersion")
+    implementation("androidx.activity:activity-compose:$androidxActivityVersion")
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$retrofitKotlinSerializationConverterVersion")
@@ -133,7 +136,6 @@ dependencies {
     implementation("io.github.raamcosta.compose-destinations:animations-core:$composeDestinationsVersion")
     ksp("io.github.raamcosta.compose-destinations:ksp:$composeDestinationsVersion")
 
-    kapt("androidx.hilt:hilt-compiler:1.0.0")
     kapt("com.google.dagger:hilt-compiler:$daggerVersion")
     kapt("com.google.dagger:dagger-compiler:$daggerVersion")
     testImplementation("junit:junit:$jUnitVersion")

@@ -7,13 +7,11 @@ import com.yoxjames.openstitch.core.OpenStitchViewModel
 import com.yoxjames.openstitch.filter.DefaultTagState
 import com.yoxjames.openstitch.filter.TagState
 import com.yoxjames.openstitch.filter.toggle
-import com.yoxjames.openstitch.list.Click
 import com.yoxjames.openstitch.list.StatefulListItemViewEvent
 import com.yoxjames.openstitch.pattern.ds.LoadingPatterns
 import com.yoxjames.openstitch.pattern.ds.PatternListDataSource
 import com.yoxjames.openstitch.pattern.ds.TagsChange
 import com.yoxjames.openstitch.pattern.state.PatternListState
-import com.yoxjames.openstitch.pattern.state.PatternRowItemState
 import com.yoxjames.openstitch.pattern.state.asState
 import com.yoxjames.openstitch.search.InactiveSearchState
 import com.yoxjames.openstitch.search.SearchConfiguration
@@ -93,9 +91,7 @@ class PatternListViewModel @Inject constructor(
 
     override suspend fun start() {
         listViewEvents.collect {
-            if (it.state is PatternRowItemState && it.viewEvent is Click) {
-//                navigationTransitions.emit(OpenPatternDetail(it.state.listPattern.id))
-            }
+            // no-op at the moment
         }
     }
 }

@@ -4,9 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yoxjames.openstitch.core.OpenStitchViewModel
-import com.yoxjames.openstitch.navigation.HotPatterns
-import com.yoxjames.openstitch.navigation.NavigationState
-import com.yoxjames.openstitch.navigation.PatternDetail
 import com.yoxjames.openstitch.pattern.ds.PatternDetailDataSource
 import com.yoxjames.openstitch.pattern.state.asState
 import com.yoxjames.openstitch.pattern.vm.destinations.PatternDetailViewDestination
@@ -37,8 +34,6 @@ class PatternDetailViewModel @Inject constructor(
             PatternDetailScreenState(
                 patternDetailState = it,
                 loadingState = it.loadingState,
-                // TODO CK - Refactor this to simply ask whether to show up enabled and get rid of NavigationState
-                navigationState = NavigationState(listOf(HotPatterns, PatternDetail(patternId)))
             )
         }.stateIn(viewModelScope, SharingStarted.Lazily, PatternDetailScreenState())
 
