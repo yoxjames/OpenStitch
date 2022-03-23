@@ -47,4 +47,3 @@ fun PatternListView(navigator: DestinationsNavigator) {
         viewModel.start()
     }
 }
-

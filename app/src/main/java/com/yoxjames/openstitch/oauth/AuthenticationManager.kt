@@ -9,13 +9,13 @@ import com.yoxjames.openstitch.BuildConfig
 import com.yoxjames.openstitch.di.AppModule.authServiceConfig
 import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.scopes.ActivityScoped
-import javax.inject.Inject
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationRequest
 import net.openid.appauth.AuthorizationResponse
 import net.openid.appauth.AuthorizationService
 import net.openid.appauth.ClientAuthentication
 import net.openid.appauth.ResponseTypeValues
+import javax.inject.Inject
 
 @ActivityScoped
 class AuthenticationManager @Inject constructor(

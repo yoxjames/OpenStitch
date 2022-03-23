@@ -15,10 +15,10 @@ import com.yoxjames.openstitch.pattern.model.FullPattern
 import com.yoxjames.openstitch.pattern.model.Image
 import com.yoxjames.openstitch.pattern.model.MonetaryPrice
 import com.yoxjames.openstitch.pattern.model.RavelryCraftException
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import javax.inject.Inject
 
 class PatternDetailDataSource @Inject constructor(
     private val patternApiService: PatternApiService

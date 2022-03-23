@@ -13,7 +13,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import java.io.File
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import net.openid.appauth.AuthorizationService
@@ -24,6 +23,7 @@ import okhttp3.Cache
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import java.io.File
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -48,11 +48,11 @@ object AppModule {
     @Provides
     fun provideChuckerInterceptor(@ApplicationContext context: Context): ChuckerInterceptor {
         return ChuckerInterceptor.Builder(context)
-                .collector(ChuckerCollector(context))
-                .maxContentLength(250000L)
-                .redactHeaders(emptySet())
-                .alwaysReadResponseBody(false)
-                .build()
+            .collector(ChuckerCollector(context))
+            .maxContentLength(250000L)
+            .redactHeaders(emptySet())
+            .alwaysReadResponseBody(false)
+            .build()
     }
 
     @Provides
@@ -78,10 +78,10 @@ object AppModule {
     @Provides
     fun provideRavelryRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-                .client(okHttpClient)
-                .baseUrl(RAVELRY_API_URL)
-                .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-                .build()
+            .client(okHttpClient)
+            .baseUrl(RAVELRY_API_URL)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
     }
 
     @Provides
