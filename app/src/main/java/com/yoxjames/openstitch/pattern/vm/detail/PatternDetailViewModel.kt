@@ -1,10 +1,10 @@
 package com.yoxjames.openstitch.pattern.vm.detail
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.yoxjames.openstitch.core.OpenStitchViewModel
-import com.yoxjames.openstitch.navigation.Back
-import com.yoxjames.openstitch.navigation.NavigationScreenState
+import com.yoxjames.openstitch.navigation.HotPatterns
 import com.yoxjames.openstitch.navigation.NavigationState
-import com.yoxjames.openstitch.navigation.NavigationTransition
 import com.yoxjames.openstitch.navigation.PatternDetail
 import com.yoxjames.openstitch.pattern.ds.PatternDetailDataSource
 import com.yoxjames.openstitch.pattern.state.asState
@@ -12,40 +12,29 @@ import com.yoxjames.openstitch.ui.ActionClick
 import com.yoxjames.openstitch.ui.SearchClick
 import com.yoxjames.openstitch.ui.TopBarBackClick
 import com.yoxjames.openstitch.ui.TopBarSearchViewEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transform
 
+@HiltViewModel
 class PatternDetailViewModel @Inject constructor(
     private val patternDetailDataSource: PatternDetailDataSource,
-    private val navigationStates: StateFlow<@JvmSuppressWildcards NavigationState>,
-    private val navigationScreenState: StateFlow<@JvmSuppressWildcards NavigationScreenState>,
-    private val navigationBus: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>,
-    private val coroutineScope: CoroutineScope
-) : OpenStitchViewModel<PatternDetailScreenState, PatternDetailViewEvent> {
+) : OpenStitchViewModel<PatternDetailScreenState, PatternDetailViewEvent>, ViewModel() {
     private val patternDetailViewEvents = MutableSharedFlow<PatternDetailViewEvent>()
 
-    override val state: StateFlow<PatternDetailScreenState> = navigationScreenState.filterIsInstance<PatternDetail>()
-        .transform {
-            emitAll(
-                patternDetailDataSource.loadPattern(patternId = it.patternId).asState()
-                    .map {
-                        PatternDetailScreenState(
-                            patternDetailState = it,
-                            loadingState = it.loadingState,
-                            navigationState = navigationStates.value
-                        )
-                    }
+    override val state: StateFlow<PatternDetailScreenState> = patternDetailDataSource.loadPattern(patternId = 1234).asState()
+        .map {
+            PatternDetailScreenState(
+                    patternDetailState = it,
+                    loadingState = it.loadingState,
+                    navigationState = NavigationState(listOf(HotPatterns, PatternDetail(1234)))
             )
-        }.stateIn(coroutineScope, SharingStarted.Lazily, PatternDetailScreenState())
+        }.stateIn(viewModelScope, SharingStarted.Lazily, PatternDetailScreenState())
 
     override suspend fun emitViewEvent(viewEvent: PatternDetailViewEvent) = when (viewEvent) {
         is PatternDetailTopBarViewEvent -> patternDetailViewEvents.emit(viewEvent)
@@ -58,7 +47,7 @@ class PatternDetailViewModel @Inject constructor(
                     is ActionClick,
                     is TopBarSearchViewEvent,
                     SearchClick -> Unit
-                    TopBarBackClick -> navigationBus.emit(Back)
+                    TopBarBackClick -> TODO()
                 }
             }
         }

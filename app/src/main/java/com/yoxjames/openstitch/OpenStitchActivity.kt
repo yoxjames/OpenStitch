@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.lifecycleScope
@@ -34,7 +35,7 @@ class OpenStitchActivity : ComponentActivity() {
     @Inject lateinit var authenticationManager: AuthenticationManager
     @Inject lateinit var navigationScreenState: StateFlow<@JvmSuppressWildcards NavigationScreenState>
     @Inject lateinit var navigationState: StateFlow<@JvmSuppressWildcards NavigationState>
-    @Inject lateinit var patternDetailViewModel: PatternDetailViewModel
+    private val patternDetailViewModel: PatternDetailViewModel by viewModels()
     @Inject lateinit var patternListViewModel: PatternListViewModel
     @Inject lateinit var navigationBus: MutableSharedFlow<@JvmSuppressWildcards NavigationTransition>
     @Inject lateinit var viewsBus: MutableSharedFlow<@JvmSuppressWildcards ViewScreen>
@@ -69,7 +70,7 @@ class OpenStitchActivity : ComponentActivity() {
                 when (navigationScreenState.collectAsState(HotPatterns).value) {
                     None -> Unit
                     HotPatterns -> PatternListView()
-                    is PatternDetail -> PatternDetailView()
+                    is PatternDetail -> PatternDetailView(patternDetailViewModel)
                     is SearchingPatterns -> PatternListView()
                 }
             }
