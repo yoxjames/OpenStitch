@@ -8,9 +8,6 @@ import com.yoxjames.openstitch.filter.DefaultTagState
 import com.yoxjames.openstitch.filter.TagState
 import com.yoxjames.openstitch.filter.toggle
 import com.yoxjames.openstitch.list.StatefulListItemViewEvent
-import com.yoxjames.openstitch.loading.LoadState
-import com.yoxjames.openstitch.loading.Loaded
-import com.yoxjames.openstitch.loading.NotLoaded
 import com.yoxjames.openstitch.pattern.ds.LoadingPatterns
 import com.yoxjames.openstitch.pattern.ds.PatternListDataSource
 import com.yoxjames.openstitch.pattern.ds.TagsChange
@@ -27,17 +24,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
-import kotlinx.coroutines.flow.transformLatest
 
 @ExperimentalMaterialApi
 @HiltViewModel
@@ -71,22 +64,7 @@ class PatternListViewModel @Inject constructor(
             emitAll(patternListDataSource.loadPatterns(it.first, it.second))
         }.asState()
 
-    private val patternListStateWithCaching = flow { emit(Unit) }
-        .scan<Unit, LoadState>(NotLoaded) { loadState, _ ->
-            if (loadState is NotLoaded || (loadState is Loaded<*> && loadState.loadTime + CACHE_TIME_MILLIS < System.currentTimeMillis())) {
-                Loaded(
-                    loadTime = System.currentTimeMillis(),
-                    state = patternListState.shareIn(viewModelScope, SharingStarted.Lazily, replay = 1)
-                )
-            } else {
-                loadState
-            }
-        }.filterIsInstance<Loaded<PatternListState>>()
-        .distinctUntilChanged()
-        .transformLatest { emit(it.state) }
-
-    override val state: StateFlow<PatternListScreenState> = patternListStateWithCaching
-        .transform { emitAll(it) }
+    override val state: StateFlow<PatternListScreenState> = patternListState
         .combine(searchState) { patternListState, searchState -> PatternListScreenState(searchState, patternListState) }
         .stateIn(
             viewModelScope,
