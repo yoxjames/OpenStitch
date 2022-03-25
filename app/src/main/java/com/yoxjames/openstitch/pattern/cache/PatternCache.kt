@@ -3,9 +3,9 @@ package com.yoxjames.openstitch.pattern.cache
 import com.yoxjames.openstitch.pattern.api.models.RavelryListPattern
 import com.yoxjames.openstitch.pattern.cache.models.PatternSearchCachedList
 import com.yoxjames.openstitch.pattern.ds.PatternSearchParams
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 class PatternCache @Inject constructor() {

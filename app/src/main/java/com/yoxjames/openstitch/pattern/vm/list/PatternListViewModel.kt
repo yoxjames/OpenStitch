@@ -19,7 +19,6 @@ import com.yoxjames.openstitch.search.SearchConfiguration
 import com.yoxjames.openstitch.search.SearchState
 import com.yoxjames.openstitch.search.asSearchState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +31,7 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
+import javax.inject.Inject
 
 @ExperimentalMaterialApi
 @HiltViewModel
