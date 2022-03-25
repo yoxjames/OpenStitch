@@ -12,13 +12,13 @@ import com.yoxjames.openstitch.ui.SearchClick
 import com.yoxjames.openstitch.ui.TopBarBackClick
 import com.yoxjames.openstitch.ui.TopBarSearchViewEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
 
 @HiltViewModel
 class PatternDetailViewModel @Inject constructor(

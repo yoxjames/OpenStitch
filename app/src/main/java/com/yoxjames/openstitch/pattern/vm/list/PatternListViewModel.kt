@@ -10,6 +10,7 @@ import com.yoxjames.openstitch.filter.toggle
 import com.yoxjames.openstitch.list.StatefulListItemViewEvent
 import com.yoxjames.openstitch.pattern.ds.LoadingPatterns
 import com.yoxjames.openstitch.pattern.ds.PatternListDataSource
+import com.yoxjames.openstitch.pattern.ds.PatternSearchParams
 import com.yoxjames.openstitch.pattern.ds.TagsChange
 import com.yoxjames.openstitch.pattern.state.PatternListState
 import com.yoxjames.openstitch.pattern.state.asState
@@ -22,7 +23,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.emitAll
@@ -31,14 +31,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.transformLatest
 
 @ExperimentalMaterialApi
 @HiltViewModel
 class PatternListViewModel @Inject constructor(
     private val patternListDataSource: PatternListDataSource,
 ) : OpenStitchViewModel<PatternListScreenState, PatternListScreenViewEvent>, ViewModel() {
-    companion object {
-        private const val CACHE_TIME_MILLIS = 1000 * 60 * 1
+    private companion object {
         private val searchConfiguration = SearchConfiguration("Search Patterns")
     }
     private val patternListViewEvents = MutableSharedFlow<PatternListScreenViewEvent>()
@@ -56,15 +56,16 @@ class PatternListViewModel @Inject constructor(
 
     private val searchState: StateFlow<SearchState> = topBarViewEvents.asSearchState(viewModelScope, searchConfiguration)
 
-    private val patternListState get() = searchState.distinctUntilChangedBy { it.text }
+    private val patternListState = searchState.distinctUntilChangedBy { it.text }
         .combine(tagState) { searchState, tagsState -> Pair(searchState, tagsState) }
         .transform {
             emit(TagsChange(it.second))
             emit(LoadingPatterns)
-            emitAll(patternListDataSource.loadPatterns(it.first, it.second))
+            emitAll(patternListDataSource.loadPatterns(PatternSearchParams(it.first, it.second)))
         }.asState()
 
-    override val state: StateFlow<PatternListScreenState> = patternListState
+    override val state: StateFlow<PatternListScreenState> = patternListViewEvents.filterIsInstance<PatternListResumeViewEvent>()
+        .transformLatest { emitAll(patternListState) }
         .combine(searchState) { patternListState, searchState -> PatternListScreenState(searchState, patternListState) }
         .stateIn(
             viewModelScope,
@@ -80,8 +81,6 @@ class PatternListViewModel @Inject constructor(
     }
 
     override suspend fun start() {
-        listViewEvents.collect {
-            // no-op at the moment
-        }
+        patternListViewEvents.emit(PatternListResumeViewEvent)
     }
 }
