@@ -3,7 +3,6 @@ package com.yoxjames.openstitch.pattern.vm.detail
 import com.yoxjames.openstitch.core.ViewEvent
 import com.yoxjames.openstitch.loading.LoadingState
 import com.yoxjames.openstitch.loading.LoadingViewState
-import com.yoxjames.openstitch.navigation.NavigationState
 import com.yoxjames.openstitch.pattern.state.LoadedPatternDetailState
 import com.yoxjames.openstitch.pattern.state.LoadingPatternState
 import com.yoxjames.openstitch.pattern.state.PatternDetailState
@@ -18,7 +17,7 @@ object DetailScreenViewStateMapper : (PatternDetailScreenState) -> PatternDetail
         return PatternDetailScreenViewState(
             topBarViewState = DefaultTopBarViewState(
                 isSearchAvailable = false,
-                isBackAvailable = state.navigationState.isBackAvailable
+                isBackAvailable = true
             ),
             patternContentViewState = when (state.patternDetailState) {
                 is LoadedPatternDetailState -> LoadedPatternViewState(
@@ -40,7 +39,6 @@ sealed interface PatternDetailViewEvent : ViewEvent
 data class PatternDetailScreenState(
     val patternDetailState: PatternDetailState = LoadingPatternState,
     val loadingState: LoadingState = LoadingState.LOADING,
-    val navigationState: NavigationState = NavigationState(emptyList())
 )
 
 sealed interface PatternContentViewState

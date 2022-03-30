@@ -57,16 +57,9 @@ data class PatternRowItemState(
 fun Flow<PatternListTransition>.asState(): Flow<PatternListState> {
     return scan(PatternListState.DEFAULT) { listState, transition ->
         when (transition) {
-            LoadingPatterns -> PatternListState(
-                listPatterns = listState.listPatterns,
-                isHotPatterns = listState.isHotPatterns,
-                loadingState = LoadingState.LOADING,
-                tagsState = listState.tagsState
-            )
-            is TagsChange -> PatternListState(
-                tagsState = transition.tagsState
-            )
-            is PatternsLoaded -> PatternListState(
+            LoadingPatterns -> listState.copy(loadingState = LoadingState.LOADING)
+            is TagsChange -> listState.copy(tagsState = transition.tagsState)
+            is PatternsLoaded -> listState.copy(
                 listPatterns = transition.listPatterns,
                 isHotPatterns = transition.isDefault,
                 loadingState = LoadingState.COMPLETE,

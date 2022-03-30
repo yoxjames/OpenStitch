@@ -6,8 +6,9 @@ import android.content.Intent
 import android.net.Uri
 import androidx.core.app.ActivityCompat.startActivityForResult
 import com.yoxjames.openstitch.BuildConfig
-import com.yoxjames.openstitch.di.MainModule
+import com.yoxjames.openstitch.di.AppModule.authServiceConfig
 import dagger.hilt.android.qualifiers.ActivityContext
+import dagger.hilt.android.scopes.ActivityScoped
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationRequest
 import net.openid.appauth.AuthorizationResponse
@@ -16,6 +17,7 @@ import net.openid.appauth.ClientAuthentication
 import net.openid.appauth.ResponseTypeValues
 import javax.inject.Inject
 
+@ActivityScoped
 class AuthenticationManager @Inject constructor(
     @ActivityContext private val context: Context,
     private val authenticationService: AuthorizationService,
@@ -32,7 +34,7 @@ class AuthenticationManager @Inject constructor(
 
     fun authenticateRavelry() {
         val authRequest = AuthorizationRequest.Builder(
-            MainModule.authServiceConfig,
+            authServiceConfig,
             BuildConfig.CLIENT_KEY,
             ResponseTypeValues.CODE,
             Uri.parse(BuildConfig.CLIENT_REDIRECT_URL)

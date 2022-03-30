@@ -38,7 +38,7 @@ object PatternDetailViewStateMapper : (LoadedPatternDetailState) -> PatternDetai
             when (price) {
                 Free -> yield(freeCard)
                 is MonetaryPrice -> yield(price.priceCard)
-            } 
+            }
         }
         yield(needleSizeCard)
         yield(sizeCard)

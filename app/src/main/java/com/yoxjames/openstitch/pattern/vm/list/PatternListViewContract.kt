@@ -32,6 +32,8 @@ value class PatternListViewEvent(
     val event: StatefulListItemViewEvent
 ) : PatternListScreenViewEvent
 
+object PatternListResumeViewEvent : PatternListScreenViewEvent
+
 fun SearchState.mapToTopBarViewState() = when (this) {
     is InactiveSearchState -> DefaultTopBarViewState(isSearchAvailable = true, isBackAvailable = false)
     is EnteredSearchState, is FocusedSearchState, is TypingSearchState -> SearchTopBarViewState(SearchViewStateMapper(this))

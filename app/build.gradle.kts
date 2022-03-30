@@ -1,5 +1,6 @@
 import Dependencies.accompanistVersion
-import Dependencies.activityComposeVersion
+import Dependencies.androidxActivityVersion
+import Dependencies.androidxHiltVersion
 import Dependencies.appAuthVersion
 import Dependencies.appCompatVersion
 import Dependencies.arrowVersion
@@ -104,7 +105,14 @@ dependencies {
     implementation("androidx.compose.material:material:$composeVersion")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
-    implementation("androidx.activity:activity-compose:$activityComposeVersion")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
+    kapt("androidx.lifecycle:lifecycle-compiler:$lifecycleVersion")
+    implementation("androidx.hilt:hilt-navigation-compose:$androidxHiltVersion")
+    kapt("androidx.hilt:hilt-compiler:$androidxHiltVersion")
+    implementation("androidx.activity:activity-ktx:$androidxActivityVersion")
+    implementation("androidx.activity:activity-compose:$androidxActivityVersion")
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$retrofitKotlinSerializationConverterVersion")

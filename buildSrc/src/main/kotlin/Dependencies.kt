@@ -4,7 +4,8 @@ object Dependencies {
     const val gradleVersion = "7.1.2"
 
     const val accompanistVersion = "0.22.0-rc"
-    const val activityComposeVersion = "1.4.0"
+    const val androidxActivityVersion = "1.4.0"
+    const val androidxHiltVersion = "1.0.0"
     const val appAuthVersion = "0.11.1"
     const val appCompatVersion = "1.4.1"
     const val arrowVersion = "1.0.1"
